@@ -215,10 +215,18 @@ export function useGuestCapture(event: GuestEvent) {
         }
         const ticket = generation;
         const candidates = isVideo
-            ? ['video/webm;codecs=vp9,opus', 'video/webm', 'video/mp4']
+            ? [
+                  'video/webm;codecs=vp9,opus',
+                  'video/webm;codecs=vp8,opus',
+                  'video/webm',
+                  'video/mp4;codecs=avc1',
+                  'video/mp4;codecs=h264',
+                  'video/mp4',
+              ]
             : [
                   'audio/webm;codecs=opus',
                   'audio/webm',
+                  'audio/mp4;codecs=mp4a.40.2',
                   'audio/mp4',
                   'audio/ogg;codecs=opus',
               ];
@@ -255,10 +263,20 @@ export function useGuestCapture(event: GuestEvent) {
                     maxSeconds,
                     Math.max(1, Math.round(durationMs / 1000)),
                 );
-                const mime =
-                    activeRecorder.mimeType ||
-                    mimeType ||
-                    (isVideo ? 'video/webm' : 'audio/webm');
+                const isSafariOrIos =
+                    typeof navigator !== 'undefined' &&
+                    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                        /^((?!chrome|android).)*safari/i.test(
+                            navigator.userAgent,
+                        ));
+                const defaultMime = isSafariOrIos
+                    ? isVideo
+                        ? 'video/mp4'
+                        : 'audio/mp4'
+                    : isVideo
+                      ? 'video/webm'
+                      : 'audio/webm';
+                const mime = activeRecorder.mimeType || mimeType || defaultMime;
                 const extension = mime.includes('mp4')
                     ? 'mp4'
                     : mime.includes('ogg')

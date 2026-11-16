@@ -11,6 +11,7 @@
         <style>
             :root, html, body {
                 color-scheme: light !important;
+                background-color: #ffffff;
                 background-color: oklch(1 0 0);
             }
         </style>

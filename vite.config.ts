@@ -37,6 +37,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ]),
+    build: {
+        target: ['es2020', 'safari15', 'ios15'],
+        cssTarget: ['safari15', 'ios15'],
+    },
     server: {
         host: '127.0.0.1',
         cors: true,
