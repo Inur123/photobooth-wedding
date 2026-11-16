@@ -83,8 +83,7 @@ watch(
 );
 
 const selectedEvent = computed(
-    () =>
-        props.events?.find((ev) => ev.id === props.selectedEventId) ?? null,
+    () => props.events?.find((ev) => ev.id === props.selectedEventId) ?? null,
 );
 
 const statusVariant: Record<
@@ -325,7 +324,7 @@ function destroy(id: string) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        class="-ml-2 mb-1 h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                        class="mb-1 -ml-2 h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
                         @click="backToEventList"
                     >
                         <ArrowLeft class="mr-1.5 size-3.5" aria-hidden="true" />

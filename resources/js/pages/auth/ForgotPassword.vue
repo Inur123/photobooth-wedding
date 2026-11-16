@@ -30,9 +30,16 @@ defineProps<{
             {{ status }}
         </div>
 
-        <Form v-bind="email.form()" v-slot="{ errors, processing }" class="space-y-4">
+        <Form
+            v-bind="email.form()"
+            v-slot="{ errors, processing }"
+            class="space-y-4"
+        >
             <div class="space-y-1.5">
-                <Label for="email" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="email"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Email Terdaftar
                 </Label>
                 <div class="relative">
@@ -48,7 +55,7 @@ defineProps<{
                         autocomplete="off"
                         autofocus
                         placeholder="nama@email.com"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-4 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-4 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.email" />

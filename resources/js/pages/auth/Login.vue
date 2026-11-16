@@ -44,7 +44,10 @@ defineProps<{
         >
             <!-- Email Input -->
             <div class="space-y-1.5">
-                <Label for="email" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="email"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Email
                 </Label>
                 <div class="relative">
@@ -62,7 +65,7 @@ defineProps<{
                         :tabindex="1"
                         autocomplete="email"
                         placeholder="nama@email.com"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-4 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-4 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.email" />
@@ -71,7 +74,10 @@ defineProps<{
             <!-- Password Input -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <Label for="password" class="block text-xs font-bold text-on-surface">
+                    <Label
+                        for="password"
+                        class="block text-xs font-bold text-on-surface"
+                    >
                         Kata Sandi
                     </Label>
                     <TextLink
@@ -96,7 +102,7 @@ defineProps<{
                         :tabindex="2"
                         autocomplete="current-password"
                         placeholder="Masukkan kata sandi"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-10 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.password" />

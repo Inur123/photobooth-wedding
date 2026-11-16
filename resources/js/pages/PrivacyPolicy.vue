@@ -146,9 +146,12 @@ const sections = [
                 >
                     Kebijakan Privasi
                 </h1>
-                <p class="mt-3 max-w-2xl text-sm leading-relaxed text-on-surface-variant sm:text-base">
-                    Kami menjaga kerahasiaan data akun penyelenggara acara serta seluruh foto,
-                    video, rekaman suara, dan ucapan yang dititipkan tamu di
+                <p
+                    class="mt-3 max-w-2xl text-sm leading-relaxed text-on-surface-variant sm:text-base"
+                >
+                    Kami menjaga kerahasiaan data akun penyelenggara acara serta
+                    seluruh foto, video, rekaman suara, dan ucapan yang
+                    dititipkan tamu di
                     <strong>titip.moment</strong>.
                 </p>
                 <div
@@ -208,12 +211,15 @@ const sections = [
                 class="mt-10 flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#181d27] p-8 text-white shadow-xl sm:flex-row sm:items-center"
             >
                 <div>
-                    <div class="flex items-center gap-2 text-xs font-bold text-primary-container uppercase">
+                    <div
+                        class="flex items-center gap-2 text-xs font-bold text-primary-container uppercase"
+                    >
                         <ShieldCheck class="h-4 w-4" />
                         Privasi &amp; Penghapusan Data
                     </div>
                     <h3 class="mt-1 text-xl font-black text-white">
-                        Butuh bantuan terkait privasi galeri atau penghapusan data?
+                        Butuh bantuan terkait privasi galeri atau penghapusan
+                        data?
                     </h3>
                     <p class="mt-1 text-sm text-slate-300">
                         Hubungi tim kami kapan saja melalui email resmi:
@@ -245,8 +251,12 @@ const sections = [
 
         <!-- FOOTER -->
         <footer class="border-t border-slate-800 bg-slate-950 text-white">
-            <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
-                <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+            <div
+                class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8"
+            >
+                <div
+                    class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center"
+                >
                     <div class="flex items-center gap-2.5">
                         <img
                             src="/images/titip-momen-logo-web.png"
@@ -254,15 +264,26 @@ const sections = [
                             class="h-7 w-auto object-contain brightness-0 invert"
                         />
                     </div>
-                    <div class="flex flex-wrap gap-6 text-xs font-semibold text-slate-300">
-                        <Link href="/" class="hover:text-primary-container">Beranda</Link>
-                        <Link href="/terms" class="hover:text-primary-container">
+                    <div
+                        class="flex flex-wrap gap-6 text-xs font-semibold text-slate-300"
+                    >
+                        <Link href="/" class="hover:text-primary-container"
+                            >Beranda</Link
+                        >
+                        <Link
+                            href="/terms"
+                            class="hover:text-primary-container"
+                        >
                             Ketentuan Penggunaan
                         </Link>
                         <Link href="/privacy" class="text-primary-container">
                             Kebijakan Privasi
                         </Link>
-                        <Link :href="login()" class="hover:text-primary-container">Masuk</Link>
+                        <Link
+                            :href="login()"
+                            class="hover:text-primary-container"
+                            >Masuk</Link
+                        >
                         <a
                             href="mailto:kontak@titipmoment.id"
                             class="hover:text-primary-container"
@@ -272,9 +293,12 @@ const sections = [
                     </div>
                 </div>
                 <div class="h-px w-full bg-slate-800"></div>
-                <div class="flex flex-col items-center justify-between gap-3 text-center text-xs text-slate-500 sm:flex-row sm:text-left">
+                <div
+                    class="flex flex-col items-center justify-between gap-3 text-center text-xs text-slate-500 sm:flex-row sm:text-left"
+                >
                     <p class="leading-relaxed">
-                        © {{ new Date().getFullYear() }} titip.moment · Seluruh hak cipta dilindungi.
+                        © {{ new Date().getFullYear() }} titip.moment · Seluruh
+                        hak cipta dilindungi.
                     </p>
                     <div class="flex items-center gap-1.5 text-slate-400">
                         <Mail class="h-3.5 w-3.5 text-primary-container" />

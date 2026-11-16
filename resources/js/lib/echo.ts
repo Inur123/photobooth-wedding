@@ -27,10 +27,14 @@ export function getEcho(): Echo<'reverb'> | null {
     }
 
     const envHost = import.meta.env.VITE_REVERB_HOST;
-    const wsHost = envHost && envHost !== 'localhost' ? envHost : window.location.hostname;
+    const wsHost =
+        envHost && envHost !== 'localhost' ? envHost : window.location.hostname;
     const isHttps = window.location.protocol === 'https:';
-    const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? (isHttps ? 'https' : 'http')) === 'https' || isHttps;
-    const port = Number(import.meta.env.VITE_REVERB_PORT) || (forceTLS ? 443 : 8080);
+    const forceTLS =
+        (import.meta.env.VITE_REVERB_SCHEME ?? (isHttps ? 'https' : 'http')) ===
+            'https' || isHttps;
+    const port =
+        Number(import.meta.env.VITE_REVERB_PORT) || (forceTLS ? 443 : 8080);
 
     echoInstance = new Echo({
         broadcaster: 'reverb',

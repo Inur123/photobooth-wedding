@@ -362,7 +362,14 @@ function send() {
                     tabindex="-1"
                     autocomplete="off"
                     aria-hidden="true"
-                    style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"
+                    style="
+                        position: absolute;
+                        left: -9999px;
+                        width: 1px;
+                        height: 1px;
+                        opacity: 0;
+                        pointer-events: none;
+                    "
                 />
                 <div class="composer-field">
                     <Label for="guest-name">Namamu</Label

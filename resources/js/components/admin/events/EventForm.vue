@@ -409,7 +409,9 @@ const qrOpen = ref(false);
                         Status &amp; Kontrol Acara
                     </Label>
                     <Select
-                        :model-value="form.is_manual_status ? form.status : 'auto'"
+                        :model-value="
+                            form.is_manual_status ? form.status : 'auto'
+                        "
                         @update:model-value="
                             (val) => {
                                 if (val === 'auto') {
@@ -442,7 +444,9 @@ const qrOpen = ref(false);
                             </SelectItem>
                         </SelectContent>
                     </Select>
-                    <p class="text-[12px] leading-relaxed text-muted-foreground">
+                    <p
+                        class="text-[12px] leading-relaxed text-muted-foreground"
+                    >
                         {{
                             form.is_manual_status
                                 ? 'Mode Manual: Status dikunci oleh admin. Acara tidak akan ditutup otomatis oleh kalender dan penutupan harus dilakukan manual oleh admin.'

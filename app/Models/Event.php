@@ -216,9 +216,7 @@ class Event extends Model
             return EventStatus::Draft;
         }
 
-        $eventDateStr = $this->event_date instanceof Carbon
-            ? $this->event_date->toDateString()
-            : Carbon::parse($this->event_date)->toDateString();
+        $eventDateStr = $this->event_date->toDateString();
 
         // 3. Jika hari-H sudah lewat (< today), status adalah Closed (kiriman ditutup otomatis)
         if ($eventDateStr < $today) {

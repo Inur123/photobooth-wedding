@@ -268,9 +268,21 @@ html {
 .sunset-mesh {
     --primary: #ae2f34;
     background:
-        radial-gradient(circle at 12% 15%, rgba(255, 107, 107, 0.16) 0%, transparent 42%),
-        radial-gradient(circle at 88% 18%, rgba(253, 158, 120, 0.2) 0%, transparent 45%),
-        radial-gradient(circle at 50% 70%, rgba(255, 230, 215, 0.35) 0%, transparent 55%),
+        radial-gradient(
+            circle at 12% 15%,
+            rgba(255, 107, 107, 0.16) 0%,
+            transparent 42%
+        ),
+        radial-gradient(
+            circle at 88% 18%,
+            rgba(253, 158, 120, 0.2) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 50% 70%,
+            rgba(255, 230, 215, 0.35) 0%,
+            transparent 55%
+        ),
         #faf8f5;
 }
 

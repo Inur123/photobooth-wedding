@@ -36,7 +36,10 @@ const inputEmail = ref(props.email);
             class="space-y-4"
         >
             <div class="space-y-1">
-                <Label for="email" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="email"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Alamat Email
                 </Label>
                 <div class="relative">
@@ -51,7 +54,7 @@ const inputEmail = ref(props.email);
                         name="email"
                         autocomplete="email"
                         v-model="inputEmail"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface-container-low pl-10 pr-4 text-sm text-on-surface-variant outline-hidden"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface-container-low pr-4 pl-10 text-sm text-on-surface-variant outline-hidden"
                         readonly
                     />
                 </div>
@@ -59,7 +62,10 @@ const inputEmail = ref(props.email);
             </div>
 
             <div class="space-y-1">
-                <Label for="password" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="password"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Kata Sandi Baru
                 </Label>
                 <div class="relative">
@@ -74,7 +80,7 @@ const inputEmail = ref(props.email);
                         autocomplete="new-password"
                         autofocus
                         placeholder="Masukkan kata sandi baru"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-10 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <p class="text-[11px] text-on-surface-variant">
@@ -101,7 +107,7 @@ const inputEmail = ref(props.email);
                         name="password_confirmation"
                         autocomplete="new-password"
                         placeholder="Ulangi kata sandi baru"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-10 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.password_confirmation" />

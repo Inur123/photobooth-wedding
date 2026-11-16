@@ -198,10 +198,13 @@ onUnmounted(() => {
                                 <div class="flex flex-col items-start gap-1">
                                     <Badge
                                         :variant="
-                                            statusVariant[ev.status] ?? 'secondary'
+                                            statusVariant[ev.status] ??
+                                            'secondary'
                                         "
                                     >
-                                        {{ statusLabel[ev.status] ?? ev.status }}
+                                        {{
+                                            statusLabel[ev.status] ?? ev.status
+                                        }}
                                     </Badge>
                                     <span
                                         v-if="ev.is_manual_status"

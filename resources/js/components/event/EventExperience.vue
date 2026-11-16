@@ -156,10 +156,7 @@ onMounted(() => {
         (e: { contribution: GuestContribution }) => {
             if (!e?.contribution) return;
 
-            if (
-                e.contribution.is_approved === false &&
-                !props.canViewPrivate
-            ) {
+            if (e.contribution.is_approved === false && !props.canViewPrivate) {
                 deletedIds.value.add(e.contribution.id);
                 realtimeItems.value = realtimeItems.value.filter(
                     (item) => item.id !== e.contribution.id,
@@ -229,7 +226,9 @@ const reels = computed(() =>
     contributionsList.value.filter((item) => item.type === 'video'),
 );
 const notes = computed(() =>
-    contributionsList.value.filter((item) => ['wish', 'voice'].includes(item.type)),
+    contributionsList.value.filter((item) =>
+        ['wish', 'voice'].includes(item.type),
+    ),
 );
 const filtered = computed(() =>
     activeTab.value === 'album'
@@ -782,7 +781,10 @@ async function share() {
                                     />
                                 </template>
                                 <template #loading>
-                                    <ContributionSkeleton v-for="n in 3" :key="`sk-${n}`" />
+                                    <ContributionSkeleton
+                                        v-for="n in 3"
+                                        :key="`sk-${n}`"
+                                    />
                                 </template>
                             </InfiniteScroll>
                         </div>

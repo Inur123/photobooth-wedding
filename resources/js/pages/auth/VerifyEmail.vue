@@ -30,22 +30,36 @@ defineProps<{
                 <MailCheck class="h-8 w-8" />
             </div>
 
-            <p class="text-xs leading-relaxed text-on-surface-variant sm:text-sm">
+            <p
+                class="text-xs leading-relaxed text-on-surface-variant sm:text-sm"
+            >
                 Kami telah mengirim tautan verifikasi akun ke:
                 <br />
-                <strong class="font-bold text-on-surface">{{ email || 'alamat email terdaftar' }}</strong>
+                <strong class="font-bold text-on-surface">{{
+                    email || 'alamat email terdaftar'
+                }}</strong>
             </p>
 
             <div
                 class="space-y-2 rounded-xl border border-outline-variant/40 bg-surface-container-low p-3.5 text-left text-xs text-on-surface-variant"
             >
                 <div class="flex items-center gap-2">
-                    <CheckCircle2 class="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                    <span>Periksa folder Spam atau Promosi jika belum muncul.</span>
+                    <CheckCircle2
+                        class="h-3.5 w-3.5 shrink-0 text-emerald-600"
+                    />
+                    <span
+                        >Periksa folder Spam atau Promosi jika belum
+                        muncul.</span
+                    >
                 </div>
                 <div class="flex items-center gap-2">
-                    <CheckCircle2 class="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                    <span>Klik tombol di email untuk langsung membuka Dashboard.</span>
+                    <CheckCircle2
+                        class="h-3.5 w-3.5 shrink-0 text-emerald-600"
+                    />
+                    <span
+                        >Klik tombol di email untuk langsung membuka
+                        Dashboard.</span
+                    >
                 </div>
             </div>
 
@@ -57,7 +71,11 @@ defineProps<{
                 Tautan verifikasi baru telah berhasil dikirim ke emailmu!
             </div>
 
-            <Form v-bind="send.form()" v-slot="{ processing }" class="space-y-3 pt-1">
+            <Form
+                v-bind="send.form()"
+                v-slot="{ processing }"
+                class="space-y-3 pt-1"
+            >
                 <Button
                     type="submit"
                     class="coral-button-gradient h-11 w-full rounded-full text-sm font-bold text-white transition-all duration-200"
@@ -68,7 +86,9 @@ defineProps<{
                     <span>Kirim Ulang Email Verifikasi</span>
                 </Button>
 
-                <div class="border-t border-outline-variant/40 pt-2 text-center">
+                <div
+                    class="border-t border-outline-variant/40 pt-2 text-center"
+                >
                     <TextLink
                         :href="logout()"
                         as="button"

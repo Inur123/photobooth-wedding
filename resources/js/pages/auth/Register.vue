@@ -33,7 +33,10 @@ defineProps<{
         >
             <!-- Full Name -->
             <div class="space-y-1.5">
-                <Label for="name" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="name"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Nama Lengkap / Penyelenggara
                 </Label>
                 <div class="relative">
@@ -51,7 +54,7 @@ defineProps<{
                         autocomplete="name"
                         name="name"
                         placeholder="Contoh: Nadia Safira"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-4 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-4 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.name" />
@@ -59,7 +62,10 @@ defineProps<{
 
             <!-- Email Input -->
             <div class="space-y-1.5">
-                <Label for="email" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="email"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Email Aktif
                 </Label>
                 <div class="relative">
@@ -76,7 +82,7 @@ defineProps<{
                         autocomplete="email"
                         name="email"
                         placeholder="nama@email.com"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-4 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-4 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.email" />
@@ -84,7 +90,10 @@ defineProps<{
 
             <!-- Password Input -->
             <div class="space-y-1.5">
-                <Label for="password" class="block text-xs font-bold text-on-surface">
+                <Label
+                    for="password"
+                    class="block text-xs font-bold text-on-surface"
+                >
                     Kata Sandi
                 </Label>
                 <div class="relative">
@@ -100,7 +109,7 @@ defineProps<{
                         autocomplete="new-password"
                         name="password"
                         placeholder="Minimal 8 karakter"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-10 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.password" />
@@ -127,25 +136,27 @@ defineProps<{
                         autocomplete="new-password"
                         name="password_confirmation"
                         placeholder="Ulangi kata sandi"
-                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pl-10 pr-10 text-sm text-on-surface transition-all outline-hidden focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                        class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
                 <InputError :message="errors.password_confirmation" />
             </div>
 
             <!-- Terms Notice -->
-            <p class="pt-0.5 text-center text-xs leading-normal text-on-surface-variant">
+            <p
+                class="pt-0.5 text-center text-xs leading-normal text-on-surface-variant"
+            >
                 Dengan mendaftar, kamu menyetujui<br />
                 <Link
                     href="/terms"
-                    class="font-semibold text-primary hover:underline whitespace-nowrap"
+                    class="font-semibold whitespace-nowrap text-primary hover:underline"
                 >
                     Ketentuan Layanan
                 </Link>
                 &amp;
                 <Link
                     href="/privacy"
-                    class="font-semibold text-primary hover:underline whitespace-nowrap"
+                    class="font-semibold whitespace-nowrap text-primary hover:underline"
                 >
                     Kebijakan Privasi
                 </Link>

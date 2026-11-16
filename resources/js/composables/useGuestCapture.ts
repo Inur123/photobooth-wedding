@@ -136,7 +136,9 @@ export function useGuestCapture(event: GuestEvent) {
         if (ticket !== generation) return;
         drawPhotobooth(canvas, event, count, shots);
         // Export sebagai WebP untuk ukuran lebih kecil, fallback ke JPEG jika tidak didukung
-        const supportsWebP = canvas.toDataURL('image/webp').startsWith('data:image/webp');
+        const supportsWebP = canvas
+            .toDataURL('image/webp')
+            .startsWith('data:image/webp');
         const mimeOut = supportsWebP ? 'image/webp' : 'image/jpeg';
         const extOut = supportsWebP ? 'webp' : 'jpg';
         const qualityOut = supportsWebP ? 0.85 : 0.9;
@@ -225,12 +227,14 @@ export function useGuestCapture(event: GuestEvent) {
         );
         const chunks: Blob[] = [];
         try {
-            const recorderOptions: MediaRecorderOptions = mimeType ? { mimeType } : {};
+            const recorderOptions: MediaRecorderOptions = mimeType
+                ? { mimeType }
+                : {};
             if (isVideo) {
                 recorderOptions.videoBitsPerSecond = 1_800_000; // 1.8 Mbps (kualitas tajam, ukuran optimal untuk mobile)
-                recorderOptions.audioBitsPerSecond = 96_000;    // 96 kbps audio jernih
+                recorderOptions.audioBitsPerSecond = 96_000; // 96 kbps audio jernih
             } else {
-                recorderOptions.audioBitsPerSecond = 64_000;    // 64 kbps cukup untuk suara
+                recorderOptions.audioBitsPerSecond = 64_000; // 64 kbps cukup untuk suara
             }
             const activeRecorder = new MediaRecorder(stream, recorderOptions);
             recorder = activeRecorder;
@@ -343,11 +347,18 @@ export function useGuestCapture(event: GuestEvent) {
                 event.capabilities.max_photo_kb / 1024,
             );
             // Terima HEIC/HEIF (iPhone) — browser/canvas handle konversi otomatis
-            const allowedPhotoTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+            const allowedPhotoTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+                'image/heic',
+                'image/heif',
+            ];
             if (
                 selected.some(
                     (image) =>
-                        !allowedPhotoTypes.includes(image.type) || image.size > maxPhotoBytes,
+                        !allowedPhotoTypes.includes(image.type) ||
+                        image.size > maxPhotoBytes,
                 )
             ) {
                 error.value = `Gunakan foto JPG, PNG, WebP, atau HEIC, maksimal ${maxPhotoMb} MB per foto.`;

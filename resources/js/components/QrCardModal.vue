@@ -118,7 +118,10 @@ async function copyUrl() {
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent :show-close-button="false" class="max-h-[92vh] max-w-sm gap-0 overflow-y-auto p-0 sm:max-w-md">
+        <DialogContent
+            :show-close-button="false"
+            class="max-h-[92vh] max-w-sm gap-0 overflow-y-auto p-0 sm:max-w-md"
+        >
             <DialogTitle class="sr-only">Kartu QR Photobooth</DialogTitle>
             <DialogDescription class="sr-only">
                 Kartu QR bergaya photobooth strip siap cetak untuk tamu
@@ -136,30 +139,47 @@ async function copyUrl() {
                         </p>
                     </div>
                     <DialogClose as-child>
-                        <Button type="button" variant="ghost" size="icon" class="size-8 shrink-0" aria-label="Tutup">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            class="size-8 shrink-0"
+                            aria-label="Tutup"
+                        >
                             <X class="size-4" aria-hidden="true" />
                         </Button>
                     </DialogClose>
                 </div>
 
                 <!-- Printable Photobooth Strip Card -->
-                <div ref="cardRef" class="qr-strip-card" :style="{
-                    '--qr-bg': bgColor,
-                    '--qr-ink': inkColor,
-                    '--qr-accent': accentColor,
-                }">
+                <div
+                    ref="cardRef"
+                    class="qr-strip-card"
+                    :style="{
+                        '--qr-bg': bgColor,
+                        '--qr-ink': inkColor,
+                        '--qr-accent': accentColor,
+                    }"
+                >
                     <!-- Inner Border Frame (matching photobooth strip design) -->
                     <div class="qr-strip-inner">
                         <!-- Strip Top Header -->
                         <div class="qr-strip-header">
                             <span class="qr-strip-brand">titip.moment</span>
-                            <span class="qr-strip-subtitle">scan photobooth</span>
+                            <span class="qr-strip-subtitle"
+                                >scan photobooth</span
+                            >
                         </div>
 
                         <!-- 1 QR Code Frame Slot (replaces 3 photo slots) -->
                         <div class="qr-slot-container">
                             <div class="qr-slot-frame">
-                                <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR Code Photobooth" class="qr-slot-image" />
+                                <img
+                                    v-if="qrDataUrl"
+                                    :src="qrDataUrl"
+                                    alt="QR Code Photobooth"
+                                    class="qr-slot-image"
+                                />
                                 <div v-else class="qr-slot-loading">
                                     Membuat QR Code…
                                 </div>
@@ -171,7 +191,10 @@ async function copyUrl() {
 
                         <!-- Strip Footer: Names & Date in Serif Typography -->
                         <div class="qr-strip-footer">
-                            <h2 class="qr-strip-names notranslate" translate="no">
+                            <h2
+                                class="qr-strip-names notranslate"
+                                translate="no"
+                            >
                                 {{ displayName }}
                             </h2>
                             <p class="qr-strip-date">{{ formattedDate }}</p>
@@ -185,8 +208,13 @@ async function copyUrl() {
 
                 <!-- Actions -->
                 <div class="flex w-full flex-col gap-2 sm:flex-row">
-                    <Button type="button" variant="default" class="flex-1" :disabled="downloading || !qrDataUrl"
-                        @click="downloadCard">
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="flex-1"
+                        :disabled="downloading || !qrDataUrl"
+                        @click="downloadCard"
+                    >
                         <Download class="mr-1.5 size-4" />
                         {{
                             downloading

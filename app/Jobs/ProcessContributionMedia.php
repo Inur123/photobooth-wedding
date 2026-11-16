@@ -72,9 +72,7 @@ class ProcessContributionMedia implements ShouldQueue
                 $image = $manager->decodePath($tmpFile);
 
                 // Auto-orient berdasarkan EXIF kamera HP sebelum strip EXIF & convert ke WebP
-                if (method_exists($image, 'orient')) {
-                    $image->orient();
-                }
+                $image->orient();
 
                 // Resize ke maksimal 2048px pada sisi terpanjang, tanpa upscale
                 $image->scaleDown(2048, 2048);

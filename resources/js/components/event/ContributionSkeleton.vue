@@ -1,9 +1,12 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
-    dominantColor?: string | null;
-}>(), {
-    dominantColor: null,
-});
+withDefaults(
+    defineProps<{
+        dominantColor?: string | null;
+    }>(),
+    {
+        dominantColor: null,
+    },
+);
 </script>
 
 <template>
@@ -106,7 +109,11 @@ withDefaults(defineProps<{
 }
 
 @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 </style>
