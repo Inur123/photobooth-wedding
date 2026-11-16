@@ -526,6 +526,11 @@
     display: flex;
     gap: 3px;
 }
+.view-toggle button {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
 .view-toggle button[aria-pressed='true'] {
     background: var(--event-soft);
     color: var(--event-action);
@@ -704,6 +709,11 @@
     padding: 8px 11px;
     border-radius: 7px;
     font-size: 11px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .note-filters button[aria-pressed='true'] {
     background: var(--event-soft);

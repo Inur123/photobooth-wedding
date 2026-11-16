@@ -52,8 +52,24 @@ const activeTab = computed(() =>
         ? 'album'
         : props.navigation.tab,
 );
-const albumView = computed(() => props.navigation.view);
-const noteFilter = computed(() => props.navigation.filter);
+const albumView = ref<'feed' | 'grid'>(props.navigation.view ?? 'feed');
+const noteFilter = ref<'all' | 'wish' | 'voice'>(
+    props.navigation.filter ?? 'all',
+);
+
+watch(
+    () => props.navigation.view,
+    (val) => {
+        if (val) albumView.value = val;
+    },
+);
+
+watch(
+    () => props.navigation.filter,
+    (val) => {
+        if (val) noteFilter.value = val;
+    },
+);
 const composing = computed(() => props.navigation.section === 'titip');
 const isOpen = ref(props.isOpen);
 watch(
@@ -205,12 +221,19 @@ onMounted(() => {
             }
         },
     );
+
+    if (typeof window !== 'undefined') {
+        window.addEventListener('popstate', onPopState);
+    }
 });
 
 onUnmounted(() => {
     const echo = getEcho();
     if (echo) {
         echo.leaveChannel(`events.${props.event.slug}`);
+    }
+    if (typeof window !== 'undefined') {
+        window.removeEventListener('popstate', onPopState);
     }
 });
 const contributionsMeta = computed(() => {
@@ -322,6 +345,35 @@ function sectionUrl(
 
 function navigate(url: string, replace = false, preserveScroll = false) {
     router.get(url, {}, { preserveState: true, preserveScroll, replace });
+}
+
+function onPopState() {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const filter = params.get('filter');
+    if (filter === 'wish' || filter === 'voice' || filter === 'all') {
+        noteFilter.value = filter;
+    }
+    const view = params.get('view');
+    if (view === 'grid' || view === 'feed') {
+        albumView.value = view;
+    }
+}
+
+function setAlbumView(view: 'feed' | 'grid') {
+    albumView.value = view;
+    if (typeof window !== 'undefined') {
+        const url = sectionUrl('album', view, noteFilter.value);
+        window.history.replaceState(window.history.state, '', url);
+    }
+}
+
+function setNoteFilter(filter: 'all' | 'wish' | 'voice') {
+    noteFilter.value = filter;
+    if (typeof window !== 'undefined') {
+        const url = sectionUrl('catatan', albumView.value, filter);
+        window.history.replaceState(window.history.state, '', url);
+    }
 }
 
 function openAlbum() {
@@ -609,13 +661,7 @@ async function share() {
                                     class="event-icon-button"
                                     aria-label="Tampilan postingan"
                                     :aria-pressed="albumView === 'feed'"
-                                    @click="
-                                        navigate(
-                                            sectionUrl('album', 'feed'),
-                                            true,
-                                            true,
-                                        )
-                                    "
+                                    @click="setAlbumView('feed')"
                                 >
                                     <LayoutList aria-hidden="true" /></button
                                 ><button
@@ -623,13 +669,7 @@ async function share() {
                                     class="event-icon-button"
                                     aria-label="Tampilan grid foto"
                                     :aria-pressed="albumView === 'grid'"
-                                    @click="
-                                        navigate(
-                                            sectionUrl('album', 'grid'),
-                                            true,
-                                            true,
-                                        )
-                                    "
+                                    @click="setAlbumView('grid')"
                                 >
                                     <Grid3X3 aria-hidden="true" />
                                 </button>
@@ -648,17 +688,7 @@ async function share() {
                                     :key="filter"
                                     type="button"
                                     :aria-pressed="noteFilter === filter"
-                                    @click="
-                                        navigate(
-                                            sectionUrl(
-                                                'catatan',
-                                                albumView,
-                                                filter,
-                                            ),
-                                            true,
-                                            true,
-                                        )
-                                    "
+                                    @click="setNoteFilter(filter)"
                                 >
                                     {{
                                         {

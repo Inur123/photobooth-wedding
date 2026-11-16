@@ -111,7 +111,6 @@ const imageDimensions = computed(() => {
         </div>
         <video
             v-else-if="contribution.type === 'video' && contribution.file_url"
-            :src="contribution.file_url"
             :poster="contribution.thumbnail_url ?? undefined"
             :aria-label="`Video dari ${author}`"
             controls
@@ -136,7 +135,6 @@ const imageDimensions = computed(() => {
                 >
             </div>
             <audio
-                :src="contribution.file_url"
                 :aria-label="`Voice note dari ${author}`"
                 controls
                 preload="metadata"
