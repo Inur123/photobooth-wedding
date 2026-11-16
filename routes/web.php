@@ -11,10 +11,12 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
+        'canRegister' => Route::has('register'),
         'packages' => Package::where('is_active', true)->orderBy('sort_order')
             ->get([
                 'id',
                 'name',
+                'slug',
                 'tagline',
                 'price',
                 'benefits',

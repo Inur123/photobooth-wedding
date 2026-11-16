@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
 import { HelpCircle, Mail } from '@lucide/vue';
+import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
+import TurnstileWidget from '@/components/TurnstileWidget.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +14,9 @@ import { email } from '@/routes/password';
 defineProps<{
     status?: string;
 }>();
+
+const hasTurnstile = Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY);
+const turnstileToken = ref('');
 </script>
 
 <template>
@@ -61,10 +66,12 @@ defineProps<{
                 <InputError :message="errors.email" />
             </div>
 
+            <TurnstileWidget v-model="turnstileToken" />
+
             <Button
                 type="submit"
                 class="coral-button-gradient h-11 w-full rounded-full text-sm font-bold text-white transition-all duration-200"
-                :disabled="processing"
+                :disabled="processing || (hasTurnstile && !turnstileToken)"
                 data-test="email-password-reset-link-button"
             >
                 <Spinner v-if="processing" />

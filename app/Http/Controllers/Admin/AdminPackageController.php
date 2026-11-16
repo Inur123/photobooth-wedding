@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\PackageUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
 use Illuminate\Http\RedirectResponse;
@@ -44,6 +45,8 @@ class AdminPackageController extends Controller
         }
 
         $package->update($data);
+
+        PackageUpdated::dispatch($package);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Paket berhasil diperbarui.']);
 

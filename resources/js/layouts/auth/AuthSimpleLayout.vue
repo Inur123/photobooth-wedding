@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     Camera,
@@ -11,6 +11,9 @@ import {
     Star,
     Zap,
 } from '@lucide/vue';
+import { watch } from 'vue';
+import { Toaster } from '@/components/ui/sonner';
+import { notifyAuthError } from '@/lib/flashToast';
 import { login, register } from '@/routes';
 
 withDefaults(
@@ -25,12 +28,33 @@ withDefaults(
         currentTab: 'login',
     },
 );
+
+const page = usePage();
+
+watch(
+    () => page.props.errors,
+    (errors) => {
+        if (!errors || Object.keys(errors).length === 0) {
+            return;
+        }
+
+        const messages = Array.from(new Set(Object.values(errors)));
+        for (const msg of messages) {
+            if (typeof msg === 'string' && msg.trim()) {
+                notifyAuthError(msg);
+            }
+        }
+    },
+    { deep: true, immediate: true },
+);
 </script>
 
 <template>
     <div
         class="sunset-mesh relative flex min-h-screen flex-col justify-between overflow-x-hidden font-sans text-on-surface antialiased selection:bg-primary-container selection:text-white"
     >
+        <Toaster position="top-right" close-button />
+
         <!-- Top Simple Navigation Strip -->
         <header
             class="z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5 lg:px-8"
@@ -84,7 +108,7 @@ withDefaults(
                             class="max-w-lg text-sm leading-relaxed font-normal text-on-surface-variant sm:text-base"
                         >
                             Tanpa sewa alat berat, tanpa instalasi rumit. Cukup
-                            cetak kartu QR di setiap meja, tamu langsung selfie
+                            cetak kartu QR di setiap tamu, tamu langsung selfie
                             dengan bingkai kustom estetik khas Korea.
                         </p>
                     </div>
@@ -332,20 +356,14 @@ withDefaults(
 
         <!-- Clean Bottom Branding Bar -->
         <footer
-            class="mx-auto flex w-full max-w-7xl flex-col items-center gap-2.5 px-4 pt-4 pb-8 text-center text-xs text-on-surface-variant sm:flex-row sm:justify-between sm:px-6 sm:py-5 sm:text-left lg:px-8"
+            class="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-3 px-4 pt-4 pb-8 text-center text-xs text-on-surface-variant sm:flex-row sm:px-6 sm:py-5 sm:text-left lg:px-8"
         >
-            <!-- 1. Email Kontak (Atas di mobile, kanan di desktop) -->
-            <a
-                href="mailto:kontak@titipmoment.id"
-                class="order-1 inline-flex items-center gap-1.5 font-medium transition-colors hover:text-primary sm:order-3"
-            >
-                <Mail class="h-3.5 w-3.5 text-primary" />
-                <span>kontak@titipmoment.id</span>
-            </a>
-
-            <!-- 2. Legal Links (Tengah di mobile & desktop) -->
+            <div class="leading-relaxed">
+                © {{ new Date().getFullYear() }} titip.moment · Seluruh hak
+                cipta dilindungi.
+            </div>
             <div
-                class="order-2 flex items-center justify-center gap-3.5 font-medium sm:order-2"
+                class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-medium"
             >
                 <Link
                     href="/terms"
@@ -353,21 +371,21 @@ withDefaults(
                 >
                     Syarat &amp; Ketentuan
                 </Link>
-                <span class="text-outline-variant/80">•</span>
+                <span class="hidden text-outline-variant/80 sm:inline">•</span>
                 <Link
                     href="/privacy"
                     class="transition-colors hover:text-primary"
                 >
                     Kebijakan Privasi
                 </Link>
-            </div>
-
-            <!-- 3. Copyright (Bawah di mobile, kiri di desktop) -->
-            <div
-                class="order-3 leading-relaxed text-on-surface-variant/80 sm:order-1"
-            >
-                © {{ new Date().getFullYear() }} titip.moment · Seluruh hak
-                cipta dilindungi.
+                <span class="hidden text-outline-variant/80 sm:inline">•</span>
+                <a
+                    href="mailto:kontak@titipmoment.id"
+                    class="inline-flex items-center gap-1.5 transition-colors hover:text-primary"
+                >
+                    <Mail class="h-3.5 w-3.5 text-primary" />
+                    <span>kontak@titipmoment.id</span>
+                </a>
             </div>
         </footer>
     </div>

@@ -1,3 +1,4 @@
+import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -13,6 +14,7 @@ void createInertiaApp({
             case name === 'Welcome':
             case name === 'TermsOfService':
             case name === 'PrivacyPolicy':
+            case name === 'Error':
                 return null;
             case name.startsWith('event/'):
                 return null;

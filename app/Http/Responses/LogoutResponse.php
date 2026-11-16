@@ -15,7 +15,7 @@ class LogoutResponse implements LogoutResponseContract
             return new JsonResponse('', 204);
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Berhasil keluar.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Berhasil keluar dari akun.']);
 
         return redirect(Fortify::redirects('logout', '/'));
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\PackageUpdated;
 use Database\Factories\PackageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -70,6 +71,14 @@ class Package extends Model
     {
         static::saving(function (Package $package): void {
             $package->benefits = $package->resolvedBenefits();
+        });
+
+        static::saved(function (Package $package): void {
+            PackageUpdated::dispatch($package);
+        });
+
+        static::deleted(function (Package $package): void {
+            PackageUpdated::dispatch($package);
         });
     }
 

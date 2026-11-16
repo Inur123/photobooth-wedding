@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SidebarProps } from '@/components/ui/sidebar';
 import { usePage } from '@inertiajs/vue3';
-import { CalendarDays, Images, LayoutGrid, Package } from '@lucide/vue';
+import { CalendarDays, Images, LayoutGrid, Package, Users } from '@lucide/vue';
 import { computed } from 'vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -63,6 +63,11 @@ const adminNav = [
         title: 'Moderasi Kiriman',
         url: '/contributions',
         icon: Images,
+    },
+    {
+        title: 'Manajemen User',
+        url: '/users',
+        icon: Users,
     },
 ];
 

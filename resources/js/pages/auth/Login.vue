@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
 import { Lock, Mail } from '@lucide/vue';
+import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
+import TurnstileWidget from '@/components/TurnstileWidget.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -18,6 +20,9 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const hasTurnstile = Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY);
+const turnstileToken = ref('');
 </script>
 
 <template>
@@ -119,12 +124,14 @@ defineProps<{
                 </Label>
             </div>
 
+            <TurnstileWidget v-model="turnstileToken" />
+
             <!-- Submit Button -->
             <Button
                 type="submit"
                 class="coral-button-gradient h-11 w-full rounded-full text-sm font-bold text-white transition-all duration-200"
                 :tabindex="4"
-                :disabled="processing"
+                :disabled="processing || (hasTurnstile && !turnstileToken)"
                 data-test="login-button"
             >
                 <Spinner v-if="processing" />

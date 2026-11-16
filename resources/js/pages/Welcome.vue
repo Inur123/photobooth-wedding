@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
+    CalendarClock,
     Camera,
     Check,
     CheckCircle2,
@@ -12,6 +13,7 @@ import {
     Images,
     Mail,
     Menu,
+    MessageCircle,
     Mic,
     Palette,
     Play,
@@ -26,12 +28,15 @@ import {
     X,
     Zap,
 } from '@lucide/vue';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { Toaster } from '@/components/ui/sonner';
+import { getEcho } from '@/lib/echo';
 import { dashboard, login, register } from '@/routes';
 
 interface PackageItem {
-    id: number;
+    id: string | number;
     name: string;
+    slug?: string;
     tagline: string | null;
     price: number;
     benefits: string[] | null;
@@ -52,6 +57,16 @@ const props = withDefaults(
         canRegister: true,
         packages: () => [],
     },
+);
+
+const livePackages = ref<PackageItem[]>([...props.packages]);
+
+watch(
+    () => props.packages,
+    (newPackages) => {
+        livePackages.value = [...newPackages];
+    },
+    { deep: true },
 );
 
 const mobileMenuOpen = ref(false);
@@ -169,6 +184,18 @@ onMounted(() => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('hashchange', handleHashChange);
+
+    const echo = getEcho();
+    if (echo) {
+        echo.channel('packages').listen(
+            '.PackageUpdated',
+            (data: { packages: PackageItem[] }) => {
+                if (Array.isArray(data.packages)) {
+                    livePackages.value = [...data.packages];
+                }
+            },
+        );
+    }
 });
 
 onUnmounted(() => {
@@ -177,6 +204,11 @@ onUnmounted(() => {
     }
     window.removeEventListener('scroll', handleScroll);
     window.removeEventListener('hashchange', handleHashChange);
+
+    const echo = getEcho();
+    if (echo) {
+        echo.leaveChannel('packages');
+    }
 });
 
 function toggleFaq(index: number): void {
@@ -187,25 +219,34 @@ function formatRupiah(amount: number): string {
     return 'Rp ' + new Intl.NumberFormat('id-ID').format(amount);
 }
 
-const packagePrices = computed(() => {
-    const basicPkg = props.packages.find((p) =>
-        p.name.toLowerCase().includes('basic'),
-    );
-    const plusPkg = props.packages.find((p) =>
-        p.name.toLowerCase().includes('plus'),
-    );
-    const fullPkg = props.packages.find((p) =>
-        p.name.toLowerCase().includes('full'),
-    );
+const startingPrice = computed(() => {
+    if (livePackages.value.length === 0) return 'Rp 150.000';
+    const min = Math.min(...livePackages.value.map((p) => p.price));
+    return formatRupiah(min);
+});
 
-    return {
-        basic: basicPkg ? formatRupiah(basicPkg.price) : 'Rp 150.000',
-        plus: plusPkg ? formatRupiah(plusPkg.price) : 'Rp 250.000',
-        full: fullPkg ? formatRupiah(fullPkg.price) : 'Rp 350.000',
-        basicDays: basicPkg?.gallery_days ?? 30,
-        plusDays: plusPkg?.gallery_days ?? 60,
-        fullDays: fullPkg?.gallery_days ?? 90,
-    };
+function isFeaturedPackage(pkg: PackageItem, index: number): boolean {
+    const name = pkg.name.toLowerCase();
+    const slug = (pkg.slug ?? '').toLowerCase();
+    if (slug === 'plus' || name.includes('plus')) return true;
+    if (livePackages.value.length === 3 && index === 1) return true;
+    return false;
+}
+
+function getPackageBadge(pkg: PackageItem): string {
+    const name = pkg.name.toLowerCase();
+    const slug = (pkg.slug ?? '').toLowerCase();
+    if (slug === 'plus' || name.includes('plus')) return 'Rekomendasi Wedding';
+    if (slug === 'full' || name.includes('full')) return 'All-Inclusive';
+    if (slug === 'basic' || name.includes('basic')) return 'Untuk Acara Intim';
+    return 'Pilihan Acara';
+}
+
+const gridColsClass = computed(() => {
+    const count = livePackages.value.length;
+    if (count === 1) return 'max-w-md grid-cols-1';
+    if (count === 2) return 'max-w-4xl grid-cols-1 md:grid-cols-2';
+    return 'max-w-6xl grid-cols-1 items-stretch gap-8 lg:grid-cols-3';
 });
 
 const faqs = [
@@ -248,6 +289,8 @@ const faqs = [
     <div
         class="sunset-mesh relative min-h-screen overflow-x-hidden font-sans text-on-surface antialiased selection:bg-primary-container selection:text-white"
     >
+        <Toaster position="top-right" close-button />
+
         <!-- TOP NAVBAR (Fixed) -->
         <header
             class="fixed top-0 right-0 left-0 z-50 border-b border-outline-variant/50 bg-white/95 shadow-xs backdrop-blur-md transition-all"
@@ -1035,8 +1078,7 @@ const faqs = [
                                     />
                                     <span>
                                         <strong
-                                            >Mulai
-                                            {{ packagePrices.basic }}:</strong
+                                            >Mulai {{ startingPrice }}:</strong
                                         >
                                         Super hemat, tanpa biaya sewa mesin
                                         jutaan atau transport kru.
@@ -1768,319 +1810,181 @@ const faqs = [
                     </p>
                 </div>
 
-                <!-- 3 Pricing Tiers Grid -->
+                <!-- Empty State jika seluruh paket nonaktif -->
                 <div
-                    class="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-8 lg:grid-cols-3"
+                    v-if="livePackages.length === 0"
+                    class="mx-auto max-w-2xl rounded-3xl border border-outline-variant/70 bg-surface-container-low p-8 text-center shadow-sm sm:p-12"
                 >
-                    <!-- Plan 1: BASIC -->
                     <div
-                        class="flex flex-col justify-between rounded-3xl border border-outline-variant/70 bg-surface-container-low p-8 transition-all hover:shadow-lg"
+                        class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-800"
                     >
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-2xl font-bold text-on-surface">
-                                    Basic
-                                </h3>
-                                <span
-                                    class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700"
-                                >
-                                    Untuk Acara Intim
-                                </span>
-                            </div>
-                            <p class="mt-2 text-sm text-on-surface-variant">
-                                Semua fitur inti digital photobooth, praktis
-                                siap pakai di hari-H.
-                            </p>
-                            <div class="mt-6 flex items-baseline gap-1">
-                                <span
-                                    class="text-4xl font-black text-on-surface"
-                                >
-                                    {{ packagePrices.basic }}
-                                </span>
-                                <span
-                                    class="text-xs font-medium text-on-surface-variant"
-                                >
-                                    / acara
-                                </span>
-                            </div>
-                            <div
-                                class="my-6 border-t border-outline-variant/40"
-                            ></div>
-                            <ul class="space-y-3.5 text-sm text-on-surface">
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Halaman photobooth dengan nama &amp;
-                                        tanggal acara</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >QR Code &amp; tautan acara custom</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span>Unlimited tamu yang foto</span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Galeri real-time &amp; moderasi
-                                        kiriman</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >1 pilihan layout foto (1 pose
-                                        berbingkai tema)</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Kiriman voice note &amp; ucapan
-                                        tertulis</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Galeri aktif
-                                        {{ packagePrices.basicDays }} hari</span
-                                    >
-                                </li>
-                            </ul>
-                        </div>
-                        <Link
-                            :href="
-                                $page.props.auth.user ? dashboard() : register()
-                            "
-                            class="mt-8 w-full rounded-full bg-inverse-surface py-3.5 text-center text-sm font-bold text-white transition-opacity hover:opacity-90"
-                        >
-                            Pilih Basic
-                        </Link>
+                        <CalendarClock class="h-7 w-7" />
                     </div>
-
-                    <!-- Plan 2: PLUS (PALING LARIS / HERO TIER) -->
-                    <div
-                        class="relative flex transform flex-col justify-between rounded-3xl border-2 border-primary-container bg-[#181d27] p-8 text-white shadow-2xl lg:-translate-y-4"
+                    <h3 class="mt-4 text-xl font-bold text-on-surface">
+                        Pemesanan Paket Sedang Ditutup Sementara
+                    </h3>
+                    <p
+                        class="mt-2 text-sm leading-relaxed text-on-surface-variant"
                     >
+                        Saat ini seluruh paket photobooth sedang dalam
+                        penyesuaian oleh pengelola. Untuk konsultasi paket
+                        custom atau reservasi tanggal acara Anda, silakan
+                        hubungi tim kami.
+                    </p>
+                    <div
+                        class="mt-6 flex flex-wrap items-center justify-center gap-3"
+                    >
+                        <a
+                            href="https://wa.me/6281234567890?text=Halo%20Admin%2C%20saya%20ingin%20tanya%20tentang%20paket%20photobooth%20titip.moment"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                        >
+                            <MessageCircle class="h-4 w-4" />
+                            Hubungi via WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dynamic Pricing Tiers Grid jika paket aktif tersedia -->
+                <div
+                    v-else
+                    class="mx-auto grid items-stretch gap-8"
+                    :class="gridColsClass"
+                >
+                    <div
+                        v-for="(pkg, index) in livePackages"
+                        :key="pkg.id"
+                        :class="[
+                            isFeaturedPackage(pkg, index)
+                                ? 'relative flex transform flex-col justify-between rounded-3xl border-2 border-primary-container bg-[#181d27] p-8 text-white shadow-2xl lg:-translate-y-4'
+                                : 'flex flex-col justify-between rounded-3xl border border-outline-variant/70 bg-surface-container-low p-8 transition-all hover:shadow-lg',
+                        ]"
+                    >
+                        <!-- Ribbon jika featured -->
                         <div
+                            v-if="isFeaturedPackage(pkg, index)"
                             class="coral-gradient absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full px-5 py-1 text-xs font-black tracking-wider whitespace-nowrap text-white uppercase shadow-md"
                         >
                             <Flame class="h-3.5 w-3.5" />
                             <span>PALING BANYAK DIPILIH</span>
                         </div>
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-2xl font-black text-white">
-                                    Plus
-                                </h3>
-                                <span
-                                    class="rounded-full border border-primary-container/30 bg-primary-container/20 px-2.5 py-1 text-xs font-bold text-primary-container"
-                                >
-                                    Rekomendasi Wedding
-                                </span>
-                            </div>
-                            <p class="mt-2 text-sm text-slate-300">
-                                Paling pas untuk resepsi pernikahan dengan tema
-                                warna sesuai dekorasi.
-                            </p>
-                            <div class="mt-6 flex items-baseline gap-1">
-                                <span class="text-4xl font-black text-white">
-                                    {{ packagePrices.plus }}
-                                </span>
-                                <span class="text-xs font-medium text-slate-400"
-                                    >/ acara</span
-                                >
-                            </div>
-                            <div class="my-6 border-t border-slate-700"></div>
-                            <ul class="space-y-3.5 text-sm text-slate-200">
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span
-                                        ><strong
-                                            >Semua fitur di paket Basic</strong
-                                        ></span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span class="font-bold text-white">
-                                        2 pilihan layout foto (1–2 pose
-                                        berbingkai)
-                                    </span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span
-                                        class="font-semibold text-primary-container"
-                                    >
-                                        Tema warna custom (bingkai otomatis
-                                        sesuai tema)
-                                    </span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span
-                                        >Kiriman video ucapan tamu (maks 20
-                                        detik)</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span
-                                        >Unduh semua file sekaligus (ZIP
-                                        HD)</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <CheckCircle2
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary-container"
-                                    />
-                                    <span
-                                        >Galeri aktif
-                                        {{ packagePrices.plusDays }} hari</span
-                                    >
-                                </li>
-                            </ul>
-                        </div>
-                        <Link
-                            :href="
-                                $page.props.auth.user ? dashboard() : register()
-                            "
-                            class="coral-gradient mt-8 w-full rounded-full py-4 text-center text-sm font-extrabold text-white shadow-lg shadow-primary-container/30 transition-transform hover:scale-[1.02]"
-                        >
-                            Pilih Paket Plus (Rekomendasi)
-                        </Link>
-                    </div>
 
-                    <!-- Plan 3: FULL -->
-                    <div
-                        class="flex flex-col justify-between rounded-3xl border border-outline-variant/70 bg-surface-container-low p-8 transition-all hover:shadow-lg"
-                    >
                         <div>
                             <div class="flex items-center justify-between">
-                                <h3 class="text-2xl font-bold text-on-surface">
-                                    Full Complete
+                                <h3
+                                    class="text-2xl font-bold"
+                                    :class="
+                                        isFeaturedPackage(pkg, index)
+                                            ? 'text-white'
+                                            : 'text-on-surface'
+                                    "
+                                >
+                                    {{ pkg.name }}
                                 </h3>
                                 <span
-                                    class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700"
+                                    v-if="getPackageBadge(pkg)"
+                                    class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    :class="
+                                        isFeaturedPackage(pkg, index)
+                                            ? 'border border-primary-container/30 bg-primary-container/20 font-bold text-primary-container'
+                                            : 'bg-slate-200 text-slate-700'
+                                    "
                                 >
-                                    All-Inclusive
+                                    {{ getPackageBadge(pkg) }}
                                 </span>
                             </div>
-                            <p class="mt-2 text-sm text-on-surface-variant">
-                                Paling lengkap tanpa batas untuk acara besar dan
-                                festival kantor.
+                            <p
+                                class="mt-2 text-sm"
+                                :class="
+                                    isFeaturedPackage(pkg, index)
+                                        ? 'text-slate-300'
+                                        : 'text-on-surface-variant'
+                                "
+                            >
+                                {{
+                                    pkg.tagline ||
+                                    'Pilihan paket photobooth digital untuk acaramu.'
+                                }}
                             </p>
                             <div class="mt-6 flex items-baseline gap-1">
                                 <span
-                                    class="text-4xl font-black text-on-surface"
+                                    class="text-4xl font-black"
+                                    :class="
+                                        isFeaturedPackage(pkg, index)
+                                            ? 'text-white'
+                                            : 'text-on-surface'
+                                    "
                                 >
-                                    {{ packagePrices.full }}
+                                    {{ formatRupiah(pkg.price) }}
                                 </span>
                                 <span
-                                    class="text-xs font-medium text-on-surface-variant"
+                                    class="text-xs font-medium"
+                                    :class="
+                                        isFeaturedPackage(pkg, index)
+                                            ? 'text-slate-400'
+                                            : 'text-on-surface-variant'
+                                    "
                                 >
                                     / acara
                                 </span>
                             </div>
                             <div
-                                class="my-6 border-t border-outline-variant/40"
+                                class="my-6 border-t"
+                                :class="
+                                    isFeaturedPackage(pkg, index)
+                                        ? 'border-slate-700'
+                                        : 'border-outline-variant/40'
+                                "
                             ></div>
-                            <ul class="space-y-3.5 text-sm text-on-surface">
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
+                            <ul
+                                class="space-y-3.5 text-sm"
+                                :class="
+                                    isFeaturedPackage(pkg, index)
+                                        ? 'text-slate-200'
+                                        : 'text-on-surface'
+                                "
+                            >
+                                <li
+                                    v-for="(benefit, bIdx) in pkg.benefits ||
+                                    []"
+                                    :key="bIdx"
+                                    class="flex items-start gap-2.5"
+                                >
+                                    <component
+                                        :is="
+                                            isFeaturedPackage(pkg, index)
+                                                ? CheckCircle2
+                                                : Check
+                                        "
+                                        class="mt-0.5 h-[18px] w-[18px] shrink-0"
+                                        :class="
+                                            isFeaturedPackage(pkg, index)
+                                                ? 'text-primary-container'
+                                                : 'text-emerald-600'
+                                        "
                                     />
-                                    <span
-                                        ><strong
-                                            >Semua fitur di paket Plus</strong
-                                        ></span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span class="font-bold">
-                                        Lengkap 4 pilihan layout foto (1–4 pose:
-                                        Solo, Duo, Trio, Quad)
-                                    </span>
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Kiriman video ucapan panjang (maks 45
-                                        detik)</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Tema warna custom &amp; bingkai
-                                        otomatis di semua layout</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Unduh semua file sekaligus (ZIP
-                                        HD)</span
-                                    >
-                                </li>
-                                <li class="flex items-start gap-2.5">
-                                    <Check
-                                        class="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-600"
-                                    />
-                                    <span
-                                        >Galeri aktif
-                                        {{ packagePrices.fullDays }} hari</span
-                                    >
+                                    <span>{{ benefit }}</span>
                                 </li>
                             </ul>
                         </div>
+
                         <Link
                             :href="
                                 $page.props.auth.user ? dashboard() : register()
                             "
-                            class="mt-8 w-full rounded-full bg-inverse-surface py-3.5 text-center text-sm font-bold text-white transition-opacity hover:opacity-90"
+                            class="mt-8 w-full rounded-full text-center text-sm font-bold transition-all"
+                            :class="
+                                isFeaturedPackage(pkg, index)
+                                    ? 'coral-gradient py-4 font-extrabold text-white shadow-lg shadow-primary-container/30 hover:scale-[1.02]'
+                                    : 'bg-inverse-surface py-3.5 text-white hover:opacity-90'
+                            "
                         >
-                            Pilih Full
+                            {{
+                                isFeaturedPackage(pkg, index)
+                                    ? `Pilih Paket ${pkg.name} (Rekomendasi)`
+                                    : `Pilih ${pkg.name}`
+                            }}
                         </Link>
                     </div>
                 </div>

@@ -30,6 +30,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'is_active' => true,
         ];
     }
 
@@ -50,6 +51,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user account is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn () => [
+            'is_active' => false,
         ]);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\CanResetPassword;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -28,11 +31,52 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->cleanStaleViteHotFile();
         $this->configureDefaults();
         $this->configureVerificationEmail();
 
+        Event::listen(Verified::class, function ($event) {
+            if ($event->user instanceof User) {
+                $event->user->update(['is_active' => true]);
+            }
+        });
+
         if (! app()->isProduction()) {
             Model::preventLazyLoading();
+        }
+    }
+
+    /**
+     * Bersihkan file public/hot jika server Vite dev sudah tidak aktif
+     * agar aset build tetap dimuat dan tidak menyebabkan layar blank / CSS hilang.
+     */
+    protected function cleanStaleViteHotFile(): void
+    {
+        if (! app()->isLocal()) {
+            return;
+        }
+
+        $hotPath = public_path('hot');
+        if (! is_file($hotPath)) {
+            return;
+        }
+
+        $url = trim((string) @file_get_contents($hotPath));
+        if ($url === '') {
+            @unlink($hotPath);
+
+            return;
+        }
+
+        $parts = parse_url($url);
+        $host = $parts['host'] ?? '127.0.0.1';
+        $port = (int) ($parts['port'] ?? 5173);
+
+        $fp = @fsockopen($host, $port, $errno, $errstr, 0.05);
+        if ($fp) {
+            fclose($fp);
+        } else {
+            @unlink($hotPath);
         }
     }
 

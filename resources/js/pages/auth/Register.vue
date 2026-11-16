@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
 import { Lock, Mail, User } from '@lucide/vue';
+import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
+import TurnstileWidget from '@/components/TurnstileWidget.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +17,9 @@ import { store } from '@/routes/register';
 defineProps<{
     passwordRules: string;
 }>();
+
+const hasTurnstile = Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY);
+const turnstileToken = ref('');
 </script>
 
 <template>
@@ -142,11 +147,13 @@ defineProps<{
                 <InputError :message="errors.password_confirmation" />
             </div>
 
+            <TurnstileWidget v-model="turnstileToken" />
+
             <!-- Terms Notice -->
             <p
-                class="pt-0.5 text-center text-xs leading-normal text-on-surface-variant"
+                class="pt-1 text-center text-xs leading-relaxed text-on-surface-variant"
             >
-                Dengan mendaftar, kamu menyetujui<br />
+                Dengan mendaftar, kamu menyetujui
                 <Link
                     href="/terms"
                     class="font-semibold whitespace-nowrap text-primary hover:underline"
@@ -167,7 +174,7 @@ defineProps<{
                 type="submit"
                 class="coral-button-gradient h-11 w-full rounded-full text-sm font-bold text-white transition-all duration-200"
                 :tabindex="5"
-                :disabled="processing"
+                :disabled="processing || (hasTurnstile && !turnstileToken)"
                 data-test="register-user-button"
             >
                 <Spinner v-if="processing" />

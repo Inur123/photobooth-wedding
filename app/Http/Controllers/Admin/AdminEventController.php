@@ -18,18 +18,37 @@ use Inertia\Response;
 
 class AdminEventController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         // Sinkronkan status otomatis semua acara non-manual sebelum ditampilkan
         Event::syncAllAutomaticStatuses();
 
-        $events = Event::with(['package:id,name', 'theme:id,name', 'user:id,name,email'])
+        $search = $request->string('search')->trim()->toString();
+
+        $query = Event::with(['package:id,name', 'theme:id,name', 'user:id,name,email'])
             ->withCount('contributions')
-            ->latest()
-            ->paginate(15);
+            ->latest();
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('party_one_name', 'like', "%{$search}%")
+                    ->orWhere('party_two_name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('venue', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $events = $query->paginate(15)->withQueryString();
 
         return Inertia::render('admin/events/Index', [
             'events' => $events,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

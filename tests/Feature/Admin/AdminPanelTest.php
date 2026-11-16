@@ -3,12 +3,14 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\EventStatus;
+use App\Events\PackageUpdated;
 use App\Models\Contribution;
 use App\Models\Event;
 use App\Models\Package;
 use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event as EventFacade;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -353,5 +355,31 @@ class AdminPanelTest extends TestCase
                 ->has('eventColors.primary')
                 ->has('eventColors.accent')
                 ->has('eventColors.neutral'));
+    }
+
+    public function test_updating_package_dispatches_package_updated_broadcast_event(): void
+    {
+        EventFacade::fake([PackageUpdated::class]);
+
+        $admin = User::factory()->admin()->create();
+        $package = Package::factory()->create(['name' => 'Original', 'is_active' => true]);
+
+        $this->actingAs($admin)
+            ->put("/packages/{$package->id}", [
+                'name' => 'Updated Package',
+                'tagline' => 'New Tagline',
+                'price' => 200000,
+                'allow_zip_download' => true,
+                'allow_custom_theme' => true,
+                'allow_video' => true,
+                'is_active' => false,
+            ])
+            ->assertRedirect();
+
+        EventFacade::assertDispatched(PackageUpdated::class, function (PackageUpdated $event) use ($package) {
+            return $event->package?->id === $package->id
+                && $event->broadcastAs() === 'PackageUpdated'
+                && in_array('packages', array_map(fn ($ch) => $ch->name, $event->broadcastOn()));
+        });
     }
 }

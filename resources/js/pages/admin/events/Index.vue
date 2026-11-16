@@ -1,10 +1,30 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Eye, Pencil, Plus, Trash2 } from '@lucide/vue';
-import { onMounted, onUnmounted } from 'vue';
+import {
+    CalendarDays,
+    Eye,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+    X,
+} from '@lucide/vue';
+import { useDebounceFn } from '@vueuse/core';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+    Pagination,
+    PaginationEllipsis,
+    PaginationFirst,
+    PaginationLast,
+    PaginationList,
+    PaginationListItem,
+    PaginationNext,
+    PaginationPrev,
+} from '@/components/ui/pagination';
 import { getEcho } from '@/lib/echo';
 
 defineOptions({
@@ -16,29 +36,87 @@ defineOptions({
     },
 });
 
-const props = defineProps<{
-    events: {
-        data: Array<{
-            id: string;
-            slug: string;
-            party_one_name: string;
-            party_two_name: string | null;
-            status: string;
-            is_manual_status?: boolean;
-            category: string;
-            event_date: string | null;
-            venue: string | null;
-            contributions_count: number;
-            package: { id: string; name: string } | null;
-            theme: { id: string; name: string } | null;
-            user?: { id: string; name: string; email: string } | null;
-        }>;
-        current_page: number;
-        last_page: number;
-        total: number;
-        links: Array<{ url: string | null; label: string; active: boolean }>;
-    };
-}>();
+const props = withDefaults(
+    defineProps<{
+        events: {
+            data: Array<{
+                id: string;
+                slug: string;
+                party_one_name: string;
+                party_two_name: string | null;
+                status: string;
+                is_manual_status?: boolean;
+                category: string;
+                event_date: string | null;
+                venue: string | null;
+                contributions_count: number;
+                package: { id: string; name: string } | null;
+                theme: { id: string; name: string } | null;
+                user?: { id: string; name: string; email: string } | null;
+            }>;
+            current_page: number;
+            last_page: number;
+            total: number;
+            from: number | null;
+            to: number | null;
+            links: Array<{
+                url: string | null;
+                label: string;
+                active: boolean;
+            }>;
+        };
+        filters?: {
+            search?: string;
+        };
+    }>(),
+    {
+        filters: () => ({ search: '' }),
+    },
+);
+
+const searchQuery = ref(props.filters?.search || '');
+
+function applyFilters(pageNumber?: number) {
+    const query: Record<string, string | number> = {};
+    const trimmed = searchQuery.value.trim();
+    if (trimmed) {
+        query.search = trimmed;
+    }
+    if (pageNumber && pageNumber > 1) {
+        query.page = pageNumber;
+    }
+
+    router.get('/events', query, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        onFinish: () => {
+            window.history.replaceState(
+                window.history.state,
+                '',
+                window.location.pathname,
+            );
+        },
+    });
+}
+
+const debouncedSearch = useDebounceFn(() => {
+    applyFilters();
+}, 350);
+
+watch(searchQuery, () => {
+    debouncedSearch();
+});
+
+function clearSearch() {
+    searchQuery.value = '';
+    applyFilters();
+}
+
+function goToPage(p: number) {
+    if (p === props.events.current_page) return;
+    applyFilters(p);
+}
 
 const statusVariant: Record<
     string,
@@ -62,6 +140,14 @@ function deleteEvent(id: string) {
 }
 
 onMounted(() => {
+    if (window.location.search) {
+        window.history.replaceState(
+            window.history.state,
+            '',
+            window.location.pathname,
+        );
+    }
+
     const echo = getEcho();
     if (!echo) return;
 
@@ -112,11 +198,40 @@ onUnmounted(() => {
             </Button>
         </header>
 
+        <!-- Search Bar -->
+        <div class="flex items-center justify-between gap-3">
+            <div class="relative w-full sm:w-80">
+                <Search
+                    class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Cari nama acara, slug, klien, lokasi..."
+                    class="h-9 pr-8 pl-9 text-xs"
+                />
+                <button
+                    v-if="searchQuery"
+                    type="button"
+                    class="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    @click="clearSearch"
+                >
+                    <X class="size-3.5" />
+                    <span class="sr-only">Hapus pencarian</span>
+                </button>
+            </div>
+        </div>
+
         <div class="overflow-hidden rounded-xl border bg-card shadow-xs">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="border-b bg-muted/40">
+                    <thead class="border-b bg-muted/40 text-xs">
                         <tr>
+                            <th
+                                class="w-12 px-3 py-3 text-center font-semibold text-muted-foreground"
+                            >
+                                No
+                            </th>
                             <th
                                 class="px-4 py-3 text-left font-medium text-muted-foreground"
                             >
@@ -151,10 +266,17 @@ onUnmounted(() => {
                     </thead>
                     <tbody class="divide-y">
                         <tr
-                            v-for="ev in events.data"
+                            v-for="(ev, index) in events.data"
                             :key="ev.id"
                             class="transition-colors hover:bg-muted/20"
                         >
+                            <!-- Row Number -->
+                            <td
+                                class="w-12 px-3 py-3.5 text-center text-xs font-semibold text-muted-foreground"
+                            >
+                                {{ (events.from ?? 1) + index }}
+                            </td>
+
                             <td class="px-4 py-3">
                                 <p
                                     class="notranslate font-medium text-foreground"
@@ -199,8 +321,9 @@ onUnmounted(() => {
                                     <Badge
                                         :variant="
                                             statusVariant[ev.status] ??
-                                            'secondary'
+                                            'outline'
                                         "
+                                        class="capitalize"
                                     >
                                         {{
                                             statusLabel[ev.status] ?? ev.status
@@ -208,19 +331,19 @@ onUnmounted(() => {
                                     </Badge>
                                     <span
                                         v-if="ev.is_manual_status"
-                                        class="text-[11px] font-medium text-amber-700"
+                                        class="text-[10px] font-semibold text-amber-700 dark:text-amber-400"
                                     >
                                         Manual Admin
                                     </span>
                                     <span
                                         v-else
-                                        class="text-[11px] text-muted-foreground"
+                                        class="text-[10px] text-muted-foreground"
                                     >
                                         Otomatis
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3 text-right">
                                 <div
                                     class="flex items-center justify-end gap-1"
                                 >
@@ -228,43 +351,49 @@ onUnmounted(() => {
                                         variant="ghost"
                                         size="icon"
                                         as-child
+                                        title="Buka Halaman Acara"
                                     >
                                         <a
                                             :href="`/e/${ev.slug}`"
                                             target="_blank"
-                                            :aria-label="`Lihat halaman tamu ${ev.party_one_name}`"
+                                            rel="noopener noreferrer"
                                         >
                                             <Eye
                                                 class="size-4"
                                                 aria-hidden="true"
                                             />
+                                            <span class="sr-only"
+                                                >Lihat acara</span
+                                            >
                                         </a>
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         as-child
+                                        title="Edit Acara"
                                     >
-                                        <Link
-                                            :href="`/events/${ev.id}/edit`"
-                                            :aria-label="`Ubah acara ${ev.party_one_name}`"
-                                        >
+                                        <Link :href="`/events/${ev.id}/edit`">
                                             <Pencil
                                                 class="size-4"
                                                 aria-hidden="true"
                                             />
+                                            <span class="sr-only"
+                                                >Edit acara</span
+                                            >
                                         </Link>
                                     </Button>
                                     <ConfirmDeleteDialog
                                         :title="`Hapus acara ${ev.party_one_name}?`"
-                                        description="Semua kiriman tamu pada acara ini ikut terhapus dan tindakan ini tidak dapat dibatalkan."
+                                        description="Tindakan ini akan menghapus data acara secara permanen beserta seluruh foto dan pesan yang terkait."
+                                        confirm-label="Hapus Acara"
                                         @confirm="deleteEvent(ev.id)"
                                     >
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            class="text-destructive hover:text-destructive"
-                                            :aria-label="`Hapus acara ${ev.party_one_name}`"
+                                            class="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                            title="Hapus Acara"
                                         >
                                             <Trash2
                                                 class="size-4"
@@ -275,46 +404,110 @@ onUnmounted(() => {
                                 </div>
                             </td>
                         </tr>
+                        <!-- Empty State -->
                         <tr v-if="events.data.length === 0">
                             <td
-                                colspan="6"
+                                colspan="7"
                                 class="px-4 py-12 text-center text-muted-foreground"
                             >
-                                Belum ada acara terdaftar.
-                                <Link
-                                    href="/events/create"
-                                    class="font-medium text-primary hover:underline"
+                                <div
+                                    class="mx-auto flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
                                 >
-                                    Buat acara pertama
-                                </Link>
+                                    <CalendarDays class="size-6" />
+                                </div>
+                                <p class="mt-3 font-medium text-foreground">
+                                    {{
+                                        searchQuery
+                                            ? 'Tidak ada acara yang cocok'
+                                            : 'Belum ada acara terdaftar'
+                                    }}
+                                </p>
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    {{
+                                        searchQuery
+                                            ? 'Coba ubah kata kunci pencarian.'
+                                            : 'Mulai buat acara baru untuk klien.'
+                                    }}
+                                </p>
+                                <div v-if="!searchQuery" class="mt-4">
+                                    <Button as-child size="sm">
+                                        <Link href="/events/create">
+                                            <Plus class="mr-1.5 size-4" />
+                                            Buat Acara Baru
+                                        </Link>
+                                    </Button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
+            <!-- Pagination Bar -->
             <div
-                v-if="events.last_page > 1"
-                class="flex items-center justify-between border-t px-4 py-3"
+                v-if="events.total > 0"
+                class="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
-                <p class="text-sm text-muted-foreground">
-                    Halaman {{ events.current_page }} dari
-                    {{ events.last_page }}
+                <p class="text-xs text-muted-foreground">
+                    Menampilkan
+                    <span class="font-medium text-foreground">{{
+                        events.from ?? 0
+                    }}</span>
+                    sampai
+                    <span class="font-medium text-foreground">{{
+                        events.to ?? 0
+                    }}</span>
+                    dari
+                    <span class="font-medium text-foreground">{{
+                        events.total
+                    }}</span>
+                    acara
                 </p>
-                <div class="flex gap-1">
-                    <Button
-                        v-for="link in events.links"
-                        :key="link.label"
-                        variant="outline"
-                        size="sm"
-                        :disabled="!link.url"
-                        :class="{
-                            'bg-primary text-primary-foreground': link.active,
-                        }"
-                        @click="link.url && router.get(link.url)"
-                        v-html="link.label"
-                    />
-                </div>
+                <Pagination
+                    v-if="events.last_page > 1"
+                    :total="events.total"
+                    :items-per-page="15"
+                    :sibling-count="1"
+                    :default-page="events.current_page"
+                    :page="events.current_page"
+                    show-edges
+                    @update:page="goToPage"
+                >
+                    <PaginationList
+                        v-slot="{ items }"
+                        class="flex items-center gap-1"
+                    >
+                        <PaginationFirst />
+                        <PaginationPrev />
+                        <template v-for="(item, index) in items">
+                            <PaginationListItem
+                                v-if="item.type === 'page'"
+                                :key="index"
+                                :value="item.value"
+                                as-child
+                            >
+                                <Button
+                                    size="sm"
+                                    class="size-8 p-0 text-xs"
+                                    :variant="
+                                        item.value === events.current_page
+                                            ? 'default'
+                                            : 'outline'
+                                    "
+                                >
+                                    {{ item.value }}
+                                </Button>
+                            </PaginationListItem>
+                            <PaginationEllipsis
+                                v-else
+                                :key="item.type"
+                                :index="index"
+                            />
+                        </template>
+                        <PaginationNext />
+                        <PaginationLast />
+                    </PaginationList>
+                </Pagination>
             </div>
         </div>
     </div>
