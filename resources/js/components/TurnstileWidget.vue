@@ -19,13 +19,13 @@ const props = withDefaults(
     defineProps<{
         modelValue?: string;
         error?: string;
-        theme?: 'auto' | 'light' | 'dark';
+        theme?: 'light' | 'dark' | 'auto';
         size?: 'normal' | 'compact' | 'flexible';
     }>(),
     {
         modelValue: '',
         error: '',
-        theme: 'auto',
+        theme: 'light',
         size: 'normal',
     },
 );
@@ -109,7 +109,7 @@ function renderTurnstile(): void {
 
     widgetId.value = window.turnstile.render(containerRef.value, {
         sitekey: siteKey,
-        theme: props.theme,
+        theme: props.theme || 'light',
         size: props.size,
         callback: (responseToken: string) => {
             token.value = responseToken;
@@ -268,6 +268,7 @@ defineExpose({
                 ref="containerRef"
                 class="flex min-h-[65px] w-[300px] items-center justify-start transition-opacity duration-200"
                 :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+                style="color-scheme: light"
             ></div>
         </div>
 
