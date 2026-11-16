@@ -1,0 +1,322 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/* titip.moment uses one light theme. */
+
+/* titip.moment brand tokens */
+@theme {
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+
+    --color-void: #10101a;
+    --color-ink: #1d1c29;
+    --color-coral: #ff5d6c;
+    --color-coral-deep: #d92c3f;
+    --color-cream: #f8f6f2;
+    --color-mist: #eeedf4;
+    --color-lav: #e5ddff;
+    --color-peach: #ffc6a4;
+    --color-brand-muted: #777586;
+
+    /* Stitch Warm Sunset Modern tokens */
+    --color-primary-container: #ff6b6b;
+    --color-primary-fixed: #ffdad8;
+    --color-primary-fixed-dim: #ffb3b0;
+    --color-secondary-container: #fd9e78;
+    --color-tertiary: #575e72;
+    --color-surface: #faf8f5;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f6f3ee;
+    --color-surface-container: #f0ede6;
+    --color-surface-container-high: #e9e4db;
+    --color-on-surface: #121c2a;
+    --color-on-surface-variant: #584140;
+    --color-outline-variant: #e6dad7;
+    --color-inverse-surface: #181d27;
+}
+
+@theme inline {
+    --font-sans:
+        Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer utilities {
+    body,
+    html {
+        --font-sans:
+            'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
+    }
+}
+
+:root {
+    color-scheme: light;
+    --background: #f8f6f2;
+    --foreground: #1d1c29;
+    --card: #fffdf9;
+    --card-foreground: #1d1c29;
+    --popover: #fffdf9;
+    --popover-foreground: #1d1c29;
+    --primary: #d92c3f;
+    --primary-foreground: #ffffff;
+    --secondary: #eeedf4;
+    --secondary-foreground: #1d1c29;
+    --muted: #f1eee8;
+    --muted-foreground: #6f6a73;
+    --accent: #fff0e8;
+    --accent-foreground: #8e2231;
+    --destructive: #b42335;
+    --destructive-foreground: #ffffff;
+    --border: #ded6cc;
+    --input: #858585;
+    --ring: #d92c3f;
+    --chart-1: hsl(12 76% 61%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+    --radius: 0.5rem;
+    --sidebar-background: #fffaf5;
+    --sidebar-foreground: #4f4954;
+    --sidebar-primary: #d92c3f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fbe5df;
+    --sidebar-accent-foreground: #8e2231;
+    --sidebar-border: #e0d4ca;
+    --sidebar-ring: #d92c3f;
+    --sidebar: #fffaf5;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring;
+    }
+    html,
+    body {
+        color-scheme: light;
+        @apply bg-background text-foreground;
+    }
+    a[href],
+    button:not(:disabled),
+    summary,
+    select:not(:disabled),
+    label[for],
+    input[type='checkbox']:not(:disabled),
+    input[type='radio']:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    [role='tab']:not([aria-disabled='true']),
+    [role='switch']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
+    button:disabled,
+    select:disabled,
+    input:disabled,
+    textarea:disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
+    input[type='number'] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.checkerboard-bg {
+    background-color: #f3f3f3;
+    background-image:
+        linear-gradient(45deg, #e3e3e3 25%, transparent 25%),
+        linear-gradient(-45deg, #e3e3e3 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e3e3e3 75%),
+        linear-gradient(-45deg, transparent 75%, #e3e3e3 75%);
+    background-size: 16px 16px;
+    background-position:
+        0 0,
+        0 8px,
+        8px -8px,
+        -8px 0px;
+}
+
+.coral-gradient {
+    background: linear-gradient(135deg, #ff5e62 0%, #ff9966 100%);
+}
+
+.coral-button-gradient {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+    box-shadow: 0 4px 14px rgba(255, 107, 107, 0.35);
+}
+
+.coral-button-gradient:hover {
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.45);
+}
+
+.card-rim {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    box-shadow:
+        0 4px 20px -2px rgba(255, 107, 107, 0.06),
+        0 2px 8px -1px rgba(18, 28, 42, 0.04);
+}
+
+.polaroid-shadow {
+    box-shadow:
+        0 16px 36px -8px rgba(18, 28, 42, 0.12),
+        0 4px 12px -2px rgba(255, 107, 107, 0.08);
+}
+
+.sunset-glow {
+    background: radial-gradient(
+        circle at 10% 20%,
+        rgba(255, 107, 107, 0.15) 0%,
+        rgba(253, 158, 120, 0.08) 50%,
+        rgba(248, 249, 255, 0) 80%
+    );
+}
+
+.sunset-mesh {
+    --primary: #ae2f34;
+    background:
+        radial-gradient(circle at 12% 15%, rgba(255, 107, 107, 0.16) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(253, 158, 120, 0.2) 0%, transparent 45%),
+        radial-gradient(circle at 50% 70%, rgba(255, 230, 215, 0.35) 0%, transparent 55%),
+        #faf8f5;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 16px 36px -8px rgba(174, 47, 52, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.photostrip-shadow {
+    box-shadow:
+        0 20px 40px -10px rgba(40, 20, 20, 0.18),
+        0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.sticker-badge {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+}
+
+@keyframes float-slow {
+    0%,
+    100% {
+        transform: translateY(0px) rotate(3deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(4.5deg);
+    }
+}
+
+@keyframes float-reverse {
+    0%,
+    100% {
+        transform: translateY(0px) rotate(-4deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(-2deg);
+    }
+}
+
+.animate-float {
+    animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-float-rev {
+    animation: float-reverse 6s ease-in-out infinite;
+}
