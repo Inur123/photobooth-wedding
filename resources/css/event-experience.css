@@ -1014,10 +1014,37 @@
     border-radius: inherit;
 }
 .capture-workspace.with-photobooth {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(100px, 24%);
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     gap: 16px;
+}
+.capture-workspace.with-photobooth:not(.is-live) .capture-stage {
+    display: none;
+}
+.capture-workspace.with-photobooth:not(.is-live) .photobooth-preview {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+    text-align: center;
+}
+.capture-workspace.with-photobooth:not(.is-live) .photobooth-preview canvas {
+    max-height: 42dvh;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 8%);
+}
+@media (min-width: 768px) {
+    .capture-workspace.with-photobooth.is-live {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(100px, 24%);
+        align-items: start;
+        gap: 16px;
+    }
 }
 .photobooth-preview {
     min-width: 0;
@@ -1043,21 +1070,6 @@
 }
 .photobooth-preview p {
     margin-top: 10px;
-}
-@media (max-width: 540px) {
-    .capture-workspace.with-photobooth {
-        gap: 10px;
-    }
-    .with-photobooth .capture-stage {
-        min-height: 200px;
-    }
-    .with-photobooth .camera-placeholder {
-        padding: 12px;
-        font-size: 12px;
-    }
-    .with-photobooth .camera-placeholder strong {
-        font-size: 14px;
-    }
 }
 .composer-heading {
     display: flex;
@@ -1781,9 +1793,95 @@
     .capture-stage {
         min-height: 220px;
     }
-    .capture-actions > button {
-        padding: 12px 10px;
+    .composer-dialog {
+        gap: 14px;
+        max-height: 92dvh;
+    }
+    .composer-dialog.composer-dialog--photobooth {
+        width: min(520px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
+    }
+    .capture-workspace.with-photobooth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+    }
+    .capture-workspace.with-photobooth .capture-stage {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        min-height: 0 !important;
+        aspect-ratio: auto !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        border: 0 !important;
+        opacity: 0.001 !important;
+        pointer-events: none !important;
+    }
+    .capture-workspace.with-photobooth .camera-placeholder {
+        display: none !important;
+    }
+    .capture-workspace.with-photobooth .photobooth-preview {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .capture-workspace.with-photobooth .photobooth-preview-heading {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+    }
+    .capture-workspace.with-photobooth .photobooth-preview canvas {
+        display: block;
+        max-height: 34dvh;
+        width: auto;
+        max-width: 100%;
+        margin: 0 auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 14px rgb(0 0 0 / 8%);
+    }
+    .capture-workspace.with-photobooth .photobooth-preview p {
+        margin-top: 6px;
         font-size: 11px;
+    }
+    .capture-actions {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+    }
+    .capture-actions > button {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 120px;
+        min-height: 44px;
+        padding: 12px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+    .capture-actions .capture-help {
+        flex: 1 1 100%;
+        width: 100%;
+        text-align: center;
+        font-size: 11px;
+        margin-top: 2px;
     }
 }
 @media (max-width: 359px) {

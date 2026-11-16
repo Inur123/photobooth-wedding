@@ -437,7 +437,10 @@ function send() {
                 <div
                     v-if="mode !== 'wish'"
                     class="capture-workspace"
-                    :class="{ 'with-photobooth': showPhotobooth }"
+                    :class="{
+                        'with-photobooth': showPhotobooth,
+                        'is-live': cameraReady,
+                    }"
                 >
                     <div
                         class="capture-stage"
@@ -494,12 +497,16 @@ function send() {
                                 ref="videoEl"
                                 autoplay
                                 playsinline
+                                webkit-playsinline
                                 muted
                                 class="capture-live"
                                 :class="{ 'is-mirrored': mode === 'photo' }"
                                 aria-label="Pratinjau kamera langsung"
                             />
-                            <div v-if="!cameraReady" class="camera-placeholder">
+                            <div
+                                v-if="!cameraReady && !showPhotobooth"
+                                class="camera-placeholder"
+                            >
                                 <component
                                     :is="mode === 'photo' ? Camera : Film"
                                     aria-hidden="true"
