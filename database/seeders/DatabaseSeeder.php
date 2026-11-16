@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,22 +19,29 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([PackageSeeder::class, ThemeSeeder::class, FrameSeeder::class]);
 
-        User::factory()->admin()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password'),
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
-        Event::create([
-            'package_id' => Package::where('slug', 'plus')->value('id'),
-            'theme_id' => Theme::where('slug', 'titip-momen')->value('id'),
-            'slug' => 'demo-wedding',
-            'status' => EventStatus::Active,
-            'is_manual_status' => true,
-            'is_demo' => true,
-            'party_one_name' => 'Anisa',
-            'party_two_name' => 'Rizky',
-            'event_date' => now()->addMonth(),
-            'venue' => 'Magetan, Jawa Timur',
-        ]);
+        Event::firstOrCreate(
+            ['slug' => 'demo-wedding'],
+            [
+                'package_id' => Package::where('slug', 'plus')->value('id'),
+                'theme_id' => Theme::where('slug', 'titip-momen')->value('id'),
+                'status' => EventStatus::Active,
+                'is_manual_status' => true,
+                'is_demo' => true,
+                'party_one_name' => 'Anisa',
+                'party_two_name' => 'Rizky',
+                'event_date' => now()->addMonth(),
+                'venue' => 'Magetan, Jawa Timur',
+            ]
+        );
     }
 }
