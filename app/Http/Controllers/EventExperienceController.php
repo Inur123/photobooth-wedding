@@ -75,9 +75,13 @@ class EventExperienceController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
+            $detectedMime = $file->getMimeType();
+            $mimeType = ($type === ContributionType::Voice && str_starts_with($detectedMime, 'video/'))
+                ? 'audio/'.substr($detectedMime, 6)
+                : $detectedMime;
             $contribution += [
                 'file_path' => $file->store("photobooth/events/{$event->id}/{$type->value}", 'r2'),
-                'mime_type' => $file->getMimeType(),
+                'mime_type' => $mimeType,
                 'size_bytes' => $file->getSize(),
             ];
         }

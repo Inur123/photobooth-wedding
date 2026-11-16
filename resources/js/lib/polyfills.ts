@@ -79,3 +79,22 @@ if (typeof window !== 'undefined') {
         };
     }
 }
+
+// 6. URLSearchParams.prototype.size (Safari < 17.0, Chrome < 113)
+if (
+    typeof URLSearchParams !== 'undefined' &&
+    !('size' in URLSearchParams.prototype)
+) {
+    Object.defineProperty(URLSearchParams.prototype, 'size', {
+        get() {
+            let count = 0;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const _ of this.keys()) {
+                count++;
+            }
+            return count;
+        },
+        configurable: true,
+        enumerable: true,
+    });
+}

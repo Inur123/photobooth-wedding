@@ -31,9 +31,16 @@ class ContributionMediaController extends Controller
         $disk = Storage::disk($contribution->file_disk);
         abort_unless($disk->exists($path), 404);
 
-        return response()->file($disk->path($path), [
+        $headers = [
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
-        ])->setContentDisposition($request->boolean('download') ? 'attachment' : 'inline');
+        ];
+
+        if ($asset === 'file' && $contribution->mime_type) {
+            $headers['Content-Type'] = $contribution->mime_type;
+        }
+
+        return response()->file($disk->path($path), $headers)
+            ->setContentDisposition($request->boolean('download') ? 'attachment' : 'inline');
     }
 }

@@ -69,17 +69,28 @@ const imageDimensions = computed(() => {
             />
         </header>
         <div v-if="failed" class="media-error" role="status">
-            <p>Media belum bisa dimuat.</p>
-            <button
-                class="event-text-button"
-                type="button"
-                @click="
-                    failed = false;
-                    loaded = false;
-                "
-            >
-                Coba lagi
-            </button>
+            <p>Media belum bisa dimuat di pemutar ini.</p>
+            <div class="media-error-actions">
+                <a
+                    v-if="contribution.file_url"
+                    :href="contribution.file_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="event-text-button"
+                >
+                    Buka media langsung
+                </a>
+                <button
+                    class="event-text-button retry-button"
+                    type="button"
+                    @click="
+                        failed = false;
+                        loaded = false;
+                    "
+                >
+                    Coba lagi
+                </button>
+            </div>
         </div>
         <div
             v-else-if="contribution.type === 'photo' && contribution.file_url"
@@ -105,10 +116,16 @@ const imageDimensions = computed(() => {
             :aria-label="`Video dari ${author}`"
             controls
             playsinline
+            webkit-playsinline
             preload="metadata"
             class="post-reel"
             @error="failed = true"
-        />
+        >
+            <source
+                :src="contribution.file_url"
+                :type="contribution.mime_type ?? 'video/mp4'"
+            />
+        </video>
         <div
             v-else-if="contribution.type === 'voice' && contribution.file_url"
             class="voice-note"
@@ -124,7 +141,12 @@ const imageDimensions = computed(() => {
                 controls
                 preload="metadata"
                 @error="failed = true"
-            />
+            >
+                <source
+                    :src="contribution.file_url"
+                    :type="contribution.mime_type ?? 'audio/mp4'"
+                />
+            </audio>
             <span v-if="contribution.duration_seconds" class="voice-duration"
                 >{{ contribution.duration_seconds }} detik untuk dikenang</span
             >

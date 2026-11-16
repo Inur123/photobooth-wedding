@@ -316,7 +316,8 @@ function sectionUrl(
     if (destination === 'album' && view === 'grid') query.set('view', view);
     if (destination === 'catatan' && filter !== 'all')
         query.set('filter', filter);
-    return `${base}/${section}${query.size ? `?${query}` : ''}`;
+    const queryString = query.toString();
+    return `${base}/${section}${queryString ? `?${queryString}` : ''}`;
 }
 
 function navigate(url: string, replace = false, preserveScroll = false) {

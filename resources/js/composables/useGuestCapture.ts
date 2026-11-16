@@ -214,20 +214,25 @@ export function useGuestCapture(event: GuestEvent) {
             return;
         }
         const ticket = generation;
+        // Prioritaskan format MP4 (H.264/AAC) agar video & suara dapat diputar di semua perangkat
+        // termasuk iPhone/iPad (Safari iOS 15+) serta Android & desktop. WebM dipakai sebagai fallback.
         const candidates = isVideo
             ? [
-                  'video/webm;codecs=vp9,opus',
-                  'video/webm;codecs=vp8,opus',
-                  'video/webm',
+                  'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
                   'video/mp4;codecs=avc1',
                   'video/mp4;codecs=h264',
                   'video/mp4',
+                  'video/webm;codecs=vp9,opus',
+                  'video/webm;codecs=vp8,opus',
+                  'video/webm',
               ]
             : [
-                  'audio/webm;codecs=opus',
-                  'audio/webm',
                   'audio/mp4;codecs=mp4a.40.2',
                   'audio/mp4',
+                  'audio/aac',
+                  'audio/m4a',
+                  'audio/webm;codecs=opus',
+                  'audio/webm',
                   'audio/ogg;codecs=opus',
               ];
         const mimeType = candidates.find((mime) =>
@@ -263,25 +268,17 @@ export function useGuestCapture(event: GuestEvent) {
                     maxSeconds,
                     Math.max(1, Math.round(durationMs / 1000)),
                 );
-                const isSafariOrIos =
-                    typeof navigator !== 'undefined' &&
-                    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-                        /^((?!chrome|android).)*safari/i.test(
-                            navigator.userAgent,
-                        ));
-                const defaultMime = isSafariOrIos
-                    ? isVideo
-                        ? 'video/mp4'
-                        : 'audio/mp4'
-                    : isVideo
-                      ? 'video/webm'
-                      : 'audio/webm';
+                const defaultMime = isVideo ? 'video/mp4' : 'audio/mp4';
                 const mime = activeRecorder.mimeType || mimeType || defaultMime;
                 const extension = mime.includes('mp4')
                     ? 'mp4'
-                    : mime.includes('ogg')
-                      ? 'ogg'
-                      : 'webm';
+                    : mime.includes('m4a')
+                      ? 'm4a'
+                      : mime.includes('aac')
+                        ? 'aac'
+                        : mime.includes('ogg')
+                          ? 'ogg'
+                          : 'webm';
                 let blob: Blob = new Blob(chunks, { type: mime });
                 if (mime.includes('webm')) {
                     try {
@@ -408,6 +405,8 @@ export function useGuestCapture(event: GuestEvent) {
                   'audio/webm',
                   'audio/mpeg',
                   'audio/mp4',
+                  'audio/aac',
+                  'audio/m4a',
                   'audio/x-m4a',
                   'audio/ogg',
                   'audio/wav',

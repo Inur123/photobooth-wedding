@@ -72,7 +72,7 @@ class StoreContributionRequest extends FormRequest
                 'duration_seconds' => ['required', 'integer', 'min:1', 'max:'.$maxVideoSeconds],
             ],
             ContributionType::Voice->value => [
-                'file' => ['required', 'file', 'mimetypes:audio/webm,audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav,audio/x-wav,video/webm', 'max:5120'],
+                'file' => ['required', 'file', 'mimetypes:audio/webm,audio/mpeg,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/wav,audio/x-wav,video/webm', 'max:5120'],
                 'duration_seconds' => ['required', 'integer', 'min:1', 'max:60'],
             ],
             ContributionType::Wish->value => [

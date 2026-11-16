@@ -87,6 +87,9 @@
     align-items: center;
     border-radius: 8px;
     color: var(--event-ink);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 .event-text-button {
     min-height: 44px;
@@ -1476,6 +1479,18 @@
     font-size: 12px;
     background: var(--event-soft);
     padding: 24px;
+    text-align: center;
+}
+.media-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+.media-error .retry-button {
+    color: var(--event-muted);
 }
 
 @media (prefers-reduced-motion: no-preference) {

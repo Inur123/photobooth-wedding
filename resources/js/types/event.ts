@@ -43,6 +43,7 @@ export type GuestContribution = {
     message: string | null;
     file_url: string | null;
     thumbnail_url: string | null;
+    mime_type?: string | null;
     duration_seconds: number | null;
     created_at: string;
     width?: number | null;

@@ -146,7 +146,7 @@ const accept = computed(() =>
         ? 'image/jpeg,image/png,image/webp,image/heic,image/heif'
         : mode.value === 'video'
           ? 'video/mp4,video/webm,video/quicktime'
-          : 'audio/mpeg,audio/mp4,audio/x-m4a,audio/webm,audio/ogg,audio/wav,audio/x-wav',
+          : 'audio/mpeg,audio/mp4,audio/x-m4a,audio/aac,audio/webm,audio/ogg,audio/wav,audio/x-wav',
 );
 const timer = computed(
     () =>
