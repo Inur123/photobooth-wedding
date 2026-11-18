@@ -26,7 +26,7 @@ class SecurityHeaders
         $response->headers->set('Permissions-Policy', 'camera=(self), microphone=(self)');
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self'{$devOrigins}; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com{$devOrigins}; frame-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'{$devOrigins}; img-src 'self' data: blob:{$devOrigins}{$mediaOrigin}; media-src 'self' blob:{$devOrigins}{$mediaOrigin}; font-src 'self' data:{$devOrigins}; connect-src 'self' ws: wss: https://challenges.cloudflare.com{$devOrigins}{$mediaOrigin}; frame-ancestors 'none'"
+            "default-src 'self'{$devOrigins}; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com{$devOrigins}; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'{$devOrigins}; img-src 'self' data: blob:{$devOrigins}{$mediaOrigin}; media-src 'self' blob:{$devOrigins}{$mediaOrigin}; font-src 'self' data:{$devOrigins}; connect-src 'self' ws: wss: https://challenges.cloudflare.com{$devOrigins}{$mediaOrigin}; frame-ancestors 'none'"
         );
 
         return $response;

@@ -73,9 +73,10 @@ defineOptions({
                     name="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
-                    placeholder="Kata sandi baru"
+                    placeholder="Minimal 8 karakter"
                     :passwordrules="props.passwordRules"
                 />
+                <p class="text-xs text-muted-foreground">Minimal 8 karakter.</p>
                 <InputError :message="errors.password" />
             </div>
 
@@ -86,7 +87,7 @@ defineOptions({
                     name="password_confirmation"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
-                    placeholder="Konfirmasi kata sandi"
+                    placeholder="Ulangi kata sandi baru"
                     :passwordrules="props.passwordRules"
                 />
                 <InputError :message="errors.password_confirmation" />

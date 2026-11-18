@@ -92,4 +92,46 @@ class PasswordResetTest extends TestCase
 
         $response->assertSessionHasErrors('email');
     }
+
+    public function test_password_reset_fails_when_shorter_than_8_characters(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+        $this->post(route('password.email'), ['email' => $user->email]);
+
+        Notification::assertSentTo($user, QueuedResetPassword::class, function ($notification) use ($user) {
+            $response = $this->post(route('password.update'), [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'pass123',
+                'password_confirmation' => 'pass123',
+            ]);
+
+            $response->assertSessionHasErrors(['password' => 'Kata sandi minimal harus 8 karakter.']);
+
+            return true;
+        });
+    }
+
+    public function test_password_reset_succeeds_with_8_characters_in_production(): void
+    {
+        config(['app.env' => 'production']);
+        Notification::fake();
+        $user = User::factory()->create();
+        $this->post(route('password.email'), ['email' => $user->email]);
+
+        Notification::assertSentTo($user, QueuedResetPassword::class, function ($notification) use ($user) {
+            $response = $this->post(route('password.update'), [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'pass1234',
+                'password_confirmation' => 'pass1234',
+            ]);
+
+            $response->assertSessionHasNoErrors();
+            $response->assertRedirect(route('login'));
+
+            return true;
+        });
+    }
 }

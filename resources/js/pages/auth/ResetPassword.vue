@@ -79,7 +79,7 @@ const inputEmail = ref(props.email);
                         name="password"
                         autocomplete="new-password"
                         autofocus
-                        placeholder="Masukkan kata sandi baru"
+                        placeholder="Minimal 8 karakter"
                         class="h-11 w-full rounded-xl border-outline-variant/60 bg-surface/50 pr-10 pl-10 text-sm text-on-surface outline-hidden transition-all focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
                     />
                 </div>
