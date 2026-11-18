@@ -92,7 +92,7 @@ class SeoMeta
             if (! empty($event['event_date']) && is_string($event['event_date'])) {
                 try {
                     $formattedDate = CarbonImmutable::parse($event['event_date'])
-                        ->locale('id')
+                        ->settings(['locale' => 'id'])
                         ->translatedFormat('j F Y');
                     $details[] = $formattedDate;
                 } catch (\Throwable) {
