@@ -1,0 +1,35 @@
+{
+    "name": "titip.moment — Photobooth Digital Pernikahan & Event",
+    "short_name": "titip.moment",
+    "description": "Photobooth digital & QR camera untuk pernikahan, lamaran, ulang tahun, dan event. Tamu scan QR dari HP tanpa aplikasi, foto langsung masuk ke galeri live.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#d92c3f",
+    "lang": "id",
+    "icons": [
+        {
+            "src": "/favicon-48x48.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

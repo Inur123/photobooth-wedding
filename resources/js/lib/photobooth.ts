@@ -85,6 +85,7 @@ export function drawPhotobooth(
     shots: PhotoSource[],
     options: {
         live?: HTMLVideoElement | null;
+        mirrorLive?: boolean;
         scale?: number;
     } = {},
 ) {
@@ -123,7 +124,12 @@ export function drawPhotobooth(
         context.fillStyle = color('soft');
         context.fillRect(slot.x, slot.y, slot.width, slot.height);
         if (shot || live?.videoWidth) {
-            drawPhoto(context, shot ?? live!, slot, !shot);
+            drawPhoto(
+                context,
+                shot ?? live!,
+                slot,
+                !shot && (options.mirrorLive ?? true),
+            );
         } else {
             context.fillStyle = color('muted');
             context.textAlign = 'center';

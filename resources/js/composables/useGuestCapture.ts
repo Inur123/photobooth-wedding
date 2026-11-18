@@ -1,7 +1,9 @@
-import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import fixWebmDuration from 'fix-webm-duration';
 import type { ContributionType, GuestEvent } from '@/types/event';
 import { drawPhotobooth } from '@/lib/photobooth';
+
+type FacingMode = 'user' | 'environment';
 
 export function useGuestCapture(event: GuestEvent) {
     const mode = ref<ContributionType>('photo');
@@ -10,6 +12,12 @@ export function useGuestCapture(event: GuestEvent) {
     const requesting = ref(false);
     const recording = ref(false);
     const capturing = ref(false);
+    const switching = ref(false);
+    const facingMode = ref<FacingMode>('user');
+    const canSwitchCamera = ref(false);
+    // Only the selfie camera is mirrored, so text and scenery from the rear
+    // camera keep their real orientation.
+    const mirrored = computed(() => facingMode.value === 'user');
     const elapsed = ref(0);
     const shotCount = ref(0);
     const layout = ref(event.capabilities.photo_layouts[0] ?? 1);
@@ -59,6 +67,7 @@ export function useGuestCapture(event: GuestEvent) {
         requesting.value = false;
         capturing.value = false;
         recording.value = false;
+        switching.value = false;
         shots.value = [];
         elapsed.value = 0;
         shotCount.value = 0;
@@ -76,6 +85,45 @@ export function useGuestCapture(event: GuestEvent) {
         layout.value = value;
     }
 
+    function requestStream(facing: FacingMode, exact = false) {
+        return navigator.mediaDevices.getUserMedia({
+            video:
+                mode.value === 'voice'
+                    ? false
+                    : {
+                          facingMode: exact ? { exact: facing } : facing,
+                          width: { ideal: 1280 },
+                          height: { ideal: 960 },
+                      },
+            audio: mode.value !== 'photo',
+        });
+    }
+
+    async function attachStream(acquired: MediaStream) {
+        stream = acquired;
+        cameraReady.value = true;
+        await nextTick();
+        if (videoEl.value && mode.value !== 'voice') {
+            videoEl.value.srcObject = stream;
+            await videoEl.value.play();
+        }
+    }
+
+    async function detectCameras() {
+        if (mode.value === 'voice') {
+            canSwitchCamera.value = false;
+            return;
+        }
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            canSwitchCamera.value =
+                devices.filter((device) => device.kind === 'videoinput')
+                    .length > 1;
+        } catch {
+            canSwitchCamera.value = false;
+        }
+    }
+
     async function startCamera() {
         if (requesting.value) return;
         error.value = '';
@@ -88,28 +136,15 @@ export function useGuestCapture(event: GuestEvent) {
         stopStream();
         requesting.value = true;
         try {
-            const acquired = await navigator.mediaDevices.getUserMedia({
-                video:
-                    mode.value === 'voice'
-                        ? false
-                        : {
-                              facingMode: 'user',
-                              width: { ideal: 1280 },
-                              height: { ideal: 960 },
-                          },
-                audio: mode.value !== 'photo',
-            });
+            const acquired = await requestStream(facingMode.value);
             if (ticket !== generation) {
                 acquired.getTracks().forEach((track) => track.stop());
                 return;
             }
-            stream = acquired;
-            cameraReady.value = true;
-            await nextTick();
-            if (videoEl.value && mode.value !== 'voice') {
-                videoEl.value.srcObject = stream;
-                await videoEl.value.play();
-            }
+            await attachStream(acquired);
+            // Device labels and the full camera list are only exposed after
+            // permission is granted, so detect cameras after the first stream.
+            await detectCameras();
         } catch {
             if (ticket !== generation) return;
             stopStream();
@@ -117,6 +152,63 @@ export function useGuestCapture(event: GuestEvent) {
                 'Kamera atau mikrofon belum bisa diakses. Periksa izin browser, lalu coba lagi atau unggah file.';
         } finally {
             if (ticket === generation) requesting.value = false;
+        }
+    }
+
+    async function switchCamera() {
+        if (
+            mode.value === 'voice' ||
+            !cameraReady.value ||
+            recording.value ||
+            capturing.value ||
+            switching.value
+        )
+            return;
+        const previous = facingMode.value;
+        const next: FacingMode = previous === 'user' ? 'environment' : 'user';
+        const ticket = ++generation;
+        error.value = '';
+        switching.value = true;
+        // Phones cannot open two cameras at once, so release the current one
+        // first. cameraReady stays true to keep the layout from jumping.
+        stream?.getTracks().forEach((track) => track.stop());
+        stream = null;
+        try {
+            let acquired: MediaStream;
+            try {
+                acquired = await requestStream(next, true);
+            } catch {
+                acquired = await requestStream(next);
+            }
+            if (ticket !== generation) {
+                acquired.getTracks().forEach((track) => track.stop());
+                return;
+            }
+            const reported = acquired.getVideoTracks()[0]?.getSettings()
+                .facingMode as string | undefined;
+            facingMode.value =
+                reported === 'user' || reported === 'environment'
+                    ? reported
+                    : next;
+            await attachStream(acquired);
+        } catch {
+            if (ticket !== generation) return;
+            try {
+                const fallback = await requestStream(previous);
+                if (ticket !== generation) {
+                    fallback.getTracks().forEach((track) => track.stop());
+                    return;
+                }
+                await attachStream(fallback);
+                error.value =
+                    'Kamera lain tidak dapat dibuka di perangkat ini.';
+            } catch {
+                stopStream();
+                error.value =
+                    'Kamera tidak dapat dibuka. Aktifkan kembali kamera atau unggah file.';
+            }
+        } finally {
+            if (ticket === generation) switching.value = false;
         }
     }
 
@@ -154,7 +246,7 @@ export function useGuestCapture(event: GuestEvent) {
     }
 
     async function capture() {
-        if (!cameraReady.value || capturing.value) return;
+        if (!cameraReady.value || capturing.value || switching.value) return;
         const ticket = generation;
         capturing.value = true;
         error.value = '';
@@ -171,8 +263,10 @@ export function useGuestCapture(event: GuestEvent) {
                 const context = shot.getContext('2d');
                 if (!context)
                     throw new Error('Kamera tidak dapat mengambil foto.');
-                context.translate(shot.width, 0);
-                context.scale(-1, 1);
+                if (mirrored.value) {
+                    context.translate(shot.width, 0);
+                    context.scale(-1, 1);
+                }
                 context.drawImage(video, 0, 0);
                 shots.value = [...shots.value, shot];
                 shotCount.value = shots.value.length;
@@ -198,7 +292,7 @@ export function useGuestCapture(event: GuestEvent) {
     }
 
     function startRecording() {
-        if (!stream || recording.value) return;
+        if (!stream || recording.value || switching.value) return;
         const isVideo = mode.value === 'video';
         const maxSeconds = isVideo
             ? event.capabilities.max_video_seconds
@@ -489,6 +583,10 @@ export function useGuestCapture(event: GuestEvent) {
         requesting,
         recording,
         capturing,
+        switching,
+        facingMode,
+        canSwitchCamera,
+        mirrored,
         elapsed,
         shotCount,
         shots,
@@ -501,6 +599,7 @@ export function useGuestCapture(event: GuestEvent) {
         setMode,
         setLayout,
         startCamera,
+        switchCamera,
         capture,
         startRecording,
         stopRecording,

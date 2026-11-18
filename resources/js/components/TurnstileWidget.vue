@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { router } from '@inertiajs/vue3';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 declare global {
@@ -196,11 +197,28 @@ watch(
     },
 );
 
+// Turnstile tokens are single-use: the server burns the token on siteverify
+// even when the request fails (wrong password, validation error). Any
+// non-GET visit that finishes while this widget is still mounted has spent
+// the token, so request a fresh one before the next submit.
+let removeFinishListener: (() => void) | null = null;
+
 onMounted(() => {
     loadTurnstileScript();
+
+    removeFinishListener = router.on('finish', (event) => {
+        const method = event.detail.visit.method;
+        if (method && method.toLowerCase() !== 'get') {
+            reset();
+        }
+    });
 });
 
 onBeforeUnmount(() => {
+    if (removeFinishListener) {
+        removeFinishListener();
+        removeFinishListener = null;
+    }
     if (observer) {
         observer.disconnect();
         observer = null;

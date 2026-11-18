@@ -1,2 +1,24 @@
 User-agent: *
-Disallow:
+Allow: /
+Allow: /images/
+Allow: /e/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /my-events
+Disallow: /my-packages
+Disallow: /settings/
+Disallow: /e/*/owner/
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Sitemap: https://photobooth.titipmoment.id/sitemap.xml

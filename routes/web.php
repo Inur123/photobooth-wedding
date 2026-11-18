@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientPackageController;
 use App\Http\Controllers\ContributionMediaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventExperienceController;
+use App\Http\Controllers\SitemapController;
 use App\Models\Package;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,6 +31,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('terms', fn () => Inertia::render('TermsOfService'))->name('terms');
 Route::get('privacy', fn () => Inertia::render('PrivacyPolicy'))->name('privacy');
 

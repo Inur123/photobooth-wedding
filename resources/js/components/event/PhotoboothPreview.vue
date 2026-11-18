@@ -9,6 +9,7 @@ const props = defineProps<{
     shots: HTMLCanvasElement[];
     video: HTMLVideoElement | null;
     live: boolean;
+    mirror?: boolean;
 }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 const geometry = computed(() => photoboothLayout(props.layout));
@@ -20,6 +21,7 @@ function draw() {
     if (!canvas.value) return;
     drawPhotobooth(canvas.value, props.event, props.layout, props.shots, {
         live: props.live ? props.video : null,
+        mirrorLive: props.mirror ?? true,
         scale: 0.3,
     });
 }

@@ -443,7 +443,9 @@ async function share() {
 </script>
 
 <template>
-    <Head :title="title" />
+    <Head
+        :title="`${title} — Photobooth & Album Kenangan Digital | titip.moment`"
+    />
     <Toaster position="top-center" close-button />
     <main
         class="guest-experience"

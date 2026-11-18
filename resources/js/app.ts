@@ -6,10 +6,18 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'titip.moment';
 
 void createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    title: (title) => {
+        if (!title) {
+            return appName;
+        }
+
+        return title.toLowerCase().includes(appName.toLowerCase())
+            ? title
+            : `${title} — ${appName}`;
+    },
     layout: (name) => {
         switch (true) {
             case name === 'Welcome':

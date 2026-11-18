@@ -12,6 +12,7 @@ import {
     LockKeyhole,
     Send,
     Square,
+    SwitchCamera,
     Upload,
     X,
 } from '@lucide/vue';
@@ -51,6 +52,9 @@ const {
     requesting,
     recording,
     capturing,
+    switching,
+    canSwitchCamera,
+    mirrored,
     elapsed,
     shotCount,
     shots,
@@ -63,6 +67,7 @@ const {
     setMode,
     setLayout,
     startCamera,
+    switchCamera,
     capture,
     startRecording,
     stopRecording,
@@ -139,7 +144,8 @@ const working = computed(
         submitting.value ||
         recording.value ||
         capturing.value ||
-        requesting.value,
+        requesting.value ||
+        switching.value,
 );
 const accept = computed(() =>
     mode.value === 'photo'
@@ -500,7 +506,9 @@ function send() {
                                 webkit-playsinline
                                 muted
                                 class="capture-live"
-                                :class="{ 'is-mirrored': mode === 'photo' }"
+                                :class="{
+                                    'is-mirrored': mode === 'photo' && mirrored,
+                                }"
                                 aria-label="Pratinjau kamera langsung"
                             />
                             <div
@@ -542,6 +550,7 @@ function send() {
                         :shots="shots"
                         :video="videoEl"
                         :live="cameraReady"
+                        :mirror="mirrored"
                     />
                 </div>
 
@@ -577,7 +586,7 @@ function send() {
                         v-else-if="mode === 'photo'"
                         type="button"
                         class="event-primary"
-                        :disabled="capturing"
+                        :disabled="capturing || switching"
                         @click="capture"
                     >
                         <Camera aria-hidden="true" />{{
@@ -594,6 +603,7 @@ function send() {
                         v-else
                         type="button"
                         class="event-primary"
+                        :disabled="switching"
                         @click="recording ? stopRecording() : startRecording()"
                     >
                         <Square v-if="recording" aria-hidden="true" /><component
@@ -601,6 +611,26 @@ function send() {
                             v-else
                             aria-hidden="true"
                         />{{ recording ? 'Selesai merekam' : 'Mulai merekam' }}
+                    </button>
+                    <button
+                        v-if="
+                            cameraReady &&
+                            canSwitchCamera &&
+                            mode !== 'voice' &&
+                            !recording
+                        "
+                        type="button"
+                        class="event-secondary"
+                        :disabled="working"
+                        @click="switchCamera"
+                    >
+                        <LoaderCircle
+                            v-if="switching"
+                            class="animate-spin"
+                            aria-hidden="true"
+                        /><SwitchCamera v-else aria-hidden="true" />{{
+                            switching ? 'Mengganti…' : 'Ganti kamera'
+                        }}
                     </button>
                     <button
                         v-if="!recording"
